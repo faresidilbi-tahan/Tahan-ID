@@ -28,27 +28,28 @@
 
 <script>
 const app = document.getElementById("app");
-const esc = s => String(s || "—").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>';
-let currentId = "";
+let currentCode = "";
 
 async function load(){
-  currentId = location.hash.slice(1).trim() || new URLSearchParams(location.search).get("id") || "";
-  if(!currentId){ app.innerHTML = '<p class="msg">No employee ID in this link.</p>'; return; }
+  currentCode = location.hash.slice(1).trim() || new URLSearchParams(location.search).get("id") || "";
+  if(!currentCode){ app.innerHTML = '<p class="msg">No employee code in this link.</p>'; return; }
   try{
-    const res = await fetch("/api/employee?id=" + encodeURIComponent(currentId));
-    if(res.status === 404){ app.innerHTML = `<p class="msg">No employee found for ID ${esc(currentId)}.</p>`; return; }
+    const res = await fetch("/api/employee?id=" + encodeURIComponent(currentCode));
+    if(res.status === 404){ app.innerHTML = '<p class="msg">No employee found for this link.</p>'; return; }
     if(!res.ok) throw 0;
     const e = await res.json();
+    const fields = [
+      ["Position", e.position],
+      ["Phone", e.phone],
+      ["Punch ID", e.id],
+      ["Department", e.department]
+    ].filter(([, v]) => String(v ?? "").trim());
     app.innerHTML = `
       <div class="confirm">${CHECK}<span>Verified: this person is a current Abed Tahan employee.</span></div>
       <h1>${esc(e.name)}</h1>
-      <dl>
-        <dt>Position</dt><dd>${esc(e.position)}</dd>
-        <dt>Phone</dt><dd>${esc(e.phone)}</dd>
-        <dt>Punch ID</dt><dd>${esc(e.id)}</dd>
-        <dt>Location</dt><dd>${esc(e.location)}</dd>
-      </dl>
+      <dl>${fields.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
       <button class="redeem" id="redeemBtn">Redeem discount</button>
       <div class="done" id="done"></div>`;
     document.getElementById("redeemBtn").addEventListener("click", redeem);
@@ -59,7 +60,7 @@ async function redeem(){
   const btn = document.getElementById("redeemBtn"), done = document.getElementById("done");
   btn.disabled = true; btn.textContent = "Redeeming…";
   try{
-    const res = await fetch("/api/redeem?id=" + encodeURIComponent(currentId), {method:"POST"});
+    const res = await fetch("/api/redeem?id=" + encodeURIComponent(currentCode), {method:"POST"});
     if(!res.ok) throw 0;
     btn.textContent = "Discount redeemed";
     done.textContent = "Recorded. Thank you!";
