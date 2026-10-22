@@ -6,8 +6,13 @@
 <title>Abed Tahan – Employee</title>
 <meta name="robots" content="noindex">
 <style>
+  :root{--blue:rgb(0,94,184)}
   body{margin:0;background:#fff;color:#1B1F24;font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.5}
-  .wrap{max-width:420px;margin:0 auto;padding:40px 20px}
+  header{background:var(--blue);padding:18px 20px;text-align:center}
+  header img{height:44px;width:auto;display:inline-block}
+  .wrap{max-width:420px;margin:0 auto;padding:32px 20px}
+  .confirm{display:flex;align-items:center;gap:10px;background:var(--blue);color:#fff;border-radius:10px;padding:12px 14px;margin-bottom:24px;font-size:15px;font-weight:500}
+  .confirm svg{width:20px;height:20px;flex:none}
   h1{font-size:22px;margin:0 0 20px}
   dl{margin:0;display:grid;grid-template-columns:120px 1fr;gap:10px 16px;font-size:16px}
   dt{color:#6B7280} dd{margin:0;font-weight:500;overflow-wrap:anywhere}
@@ -15,11 +20,13 @@
 </style>
 </head>
 <body>
+<header><img src="https://abedtahan.com/cdn/shop/files/AT_Logo_400x200_Transparent.png?v=1732612010&width=250" alt="Abed Tahan"></header>
 <div class="wrap" id="app"><p class="msg">Loading…</p></div>
 
 <script>
 const app = document.getElementById("app");
 const esc = s => String(s || "—").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>';
 
 async function load(){
   const id = location.hash.slice(1).trim() || new URLSearchParams(location.search).get("id") || "";
@@ -30,6 +37,7 @@ async function load(){
     if(!res.ok) throw 0;
     const e = await res.json();
     app.innerHTML = `
+      <div class="confirm">${CHECK}<span>Verified: this person is a current Abed Tahan employee.</span></div>
       <h1>${esc(e.name)}</h1>
       <dl>
         <dt>Position</dt><dd>${esc(e.position)}</dd>
