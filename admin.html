@@ -131,7 +131,7 @@ $("search").addEventListener("input", render);
 async function load(){
   $("listMsg").className=""; $("listMsg").textContent = "Loading…";
   try{
-    employees = (await api({action:"list"})).employees;
+    employees = (await api({action:"list"})).employees.map(e => ({...e, department: e.department || e.location || ""}));
     $("sEmp").textContent = employees.length;
     $("sScans").textContent = employees.reduce((a,e)=>a+e.scans,0);
     $("sRed").textContent = employees.reduce((a,e)=>a+e.redeemed,0);
