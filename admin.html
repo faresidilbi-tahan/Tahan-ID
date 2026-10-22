@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Abed Tahan – ID Admin</title>
+<meta name="robots" content="noindex">
+<style>
+  :root{--blue:rgb(0,94,184)}
+  body{margin:0;background:#F5F6F8;color:#1B1F24;font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.5}
+  header{background:var(--blue);padding:10px 20px;display:flex;align-items:center;justify-content:space-between}
+  header img{height:52px;width:auto}
+  header button{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.6);border-radius:6px;padding:7px 12px;font:inherit;cursor:pointer}
+  .wrap{max-width:1000px;margin:0 auto;padding:24px 16px 60px}
+  .box{background:#fff;border:1px solid #E3E6EA;border-radius:6px;padding:20px;margin-bottom:20px}
+  h2{font-size:17px;margin:0 0 14px}
+  label{display:block;font-size:13px;color:#6B7280;margin-bottom:4px}
+  input{width:100%;box-sizing:border-box;font:inherit;padding:10px;border:1px solid #D1D5DB;border-radius:6px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;align-items:end}
+  .btn{background:var(--blue);color:#fff;border:0;border-radius:6px;padding:11px 16px;font:inherit;font-weight:600;cursor:pointer}
+  .btn.danger{background:#fff;color:#B91C1C;border:1px solid #FCA5A5;padding:6px 10px;font-weight:500}
+  .btn:disabled{opacity:.5;cursor:default}
+  .err{color:#B91C1C;font-size:14px;margin-top:10px}
+  .ok{color:#15803D;font-size:14px;margin-top:10px}
+  .login{max-width:360px;margin:60px auto}
+  .login input{margin-bottom:12px}
+  .stats{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+  .stat{background:#fff;border:1px solid #E3E6EA;border-radius:6px;padding:14px 18px;min-width:140px}
+  .stat b{display:block;font-size:24px;color:var(--blue)}
+  .stat span{font-size:13px;color:#6B7280}
+  .tools{display:flex;gap:12px;margin-bottom:12px}
+  .tools input{max-width:320px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #E3E6EA;white-space:nowrap}
+  th{color:#6B7280;font-weight:600}
+  td.num{text-align:right} th.num{text-align:right}
+  .tablewrap{overflow-x:auto}
+  a.link{color:var(--blue)}
+  .hide{display:none}
+</style>
+</head>
+<body>
+<header>
+  <img src="https://abedtahan.com/cdn/shop/files/AT_Logo_400x200_Transparent.png?v=1732612010&width=250" alt="Abed Tahan">
+  <button id="logoutBtn" class="hide">Log out</button>
+</header>
+
+<div class="wrap">
+
+  <div class="box login" id="loginBox">
+    <h2>Employee ID admin</h2>
+    <label>Username</label><input id="user" autocomplete="username">
+    <label>Password</label><input id="pass" type="password" autocomplete="current-password">
+    <button class="btn" id="loginBtn" style="width:100%">Log in</button>
+    <div class="err" id="loginErr"></div>
+  </div>
+
+  <div id="panel" class="hide">
+    <div class="stats">
+      <div class="stat"><b id="sEmp">–</b><span>Employees</span></div>
+      <div class="stat"><b id="sScans">–</b><span>Total scans</span></div>
+      <div class="stat"><b id="sRed">–</b><span>Discounts redeemed</span></div>
+    </div>
+
+    <div class="box">
+      <h2>Add employee</h2>
+      <div class="grid">
+        <div><label>Full Name</label><input id="aName"></div>
+        <div><label>Position</label><input id="aPos"></div>
+        <div><label>Phone Number</label><input id="aPhone"></div>
+        <div><label>Punch ID</label><input id="aId"></div>
+        <div><label>Location</label><input id="aLoc"></div>
+        <div><button class="btn" id="addBtn" style="width:100%">Add</button></div>
+      </div>
+      <div id="addMsg"></div>
+    </div>
+
+    <div class="box">
+      <h2>Employees</h2>
+      <div class="tools">
+        <input id="search" placeholder="Search name, ID, location…">
+        <button class="btn" id="refreshBtn">Refresh</button>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Punch ID</th><th>Full Name</th><th>Position</th><th>Phone</th><th>Location</th><th class="num">Scans</th><th class="num">Redeemed</th><th></th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div id="listMsg"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let token = sessionStorage.getItem("token") || "";
+let employees = [];
+
+async function api(body){
+  const r = await fetch("/api/admin", {method:"POST", headers:{"Content-Type":"application/json", "Authorization":"Bearer "+token}, body:JSON.stringify(body)});
+  const d = await r.json();
+  if(r.status === 401 && body.action !== "login"){ logout(); throw new Error("Session expired, please log in again."); }
+  if(!r.ok || d.error) throw new Error(d.error || "Request failed");
+  return d;
+}
+
+function showPanel(on){
+  $("loginBox").classList.toggle("hide", on);
+  $("panel").classList.toggle("hide", !on);
+  $("logoutBtn").classList.toggle("hide", !on);
+}
+function logout(){ token=""; sessionStorage.removeItem("token"); showPanel(false); }
+
+$("loginBtn").addEventListener("click", async () => {
+  $("loginErr").textContent = ""; $("loginBtn").disabled = true;
+  try{
+    const d = await api({action:"login", username:$("user").value.trim(), password:$("pass").value});
+    token = d.token; sessionStorage.setItem("token", token);
+    showPanel(true); load();
+  }catch(e){ $("loginErr").textContent = e.message; }
+  $("loginBtn").disabled = false;
+});
+$("pass").addEventListener("keydown", e => { if(e.key==="Enter") $("loginBtn").click(); });
+$("logoutBtn").addEventListener("click", logout);
+$("refreshBtn").addEventListener("click", load);
+$("search").addEventListener("input", render);
+
+async function load(){
+  $("listMsg").className=""; $("listMsg").textContent = "Loading…";
+  try{
+    employees = (await api({action:"list"})).employees;
+    $("sEmp").textContent = employees.length;
+    $("sScans").textContent = employees.reduce((a,e)=>a+e.scans,0);
+    $("sRed").textContent = employees.reduce((a,e)=>a+e.redeemed,0);
+    $("listMsg").textContent = "";
+    render();
+  }catch(e){ $("listMsg").className="err"; $("listMsg").textContent = e.message; }
+}
+
+function render(){
+  const q = $("search").value.trim().toLowerCase();
+  const list = employees.filter(e => !q || [e.name,e.id,e.position,e.location,e.phone].join(" ").toLowerCase().includes(q));
+  $("rows").innerHTML = list.map(e => `
+    <tr>
+      <td><a class="link" href="/#${encodeURIComponent(e.id)}" target="_blank">${esc(e.id)}</a></td>
+      <td>${esc(e.name)}</td><td>${esc(e.position)}</td><td>${esc(e.phone)}</td><td>${esc(e.location)}</td>
+      <td class="num">${e.scans}</td><td class="num">${e.redeemed}</td>
+      <td><button class="btn danger" data-id="${esc(e.id)}" data-name="${esc(e.name)}">Remove</button></td>
+    </tr>`).join("") || `<tr><td colspan="8" style="color:#6B7280">No employees found.</td></tr>`;
+  $("rows").querySelectorAll("button").forEach(b => b.addEventListener("click", () => remove(b.dataset.id, b.dataset.name)));
+}
+
+async function remove(id, name){
+  if(!confirm(`Remove ${name} (${id})? Their QR will stop working.`)) return;
+  try{ await api({action:"remove", id}); load(); }
+  catch(e){ $("listMsg").className="err"; $("listMsg").textContent = e.message; }
+}
+
+$("addBtn").addEventListener("click", async () => {
+  const employee = {name:$("aName").value.trim(), position:$("aPos").value.trim(), phone:$("aPhone").value.trim(), id:$("aId").value.trim(), location:$("aLoc").value.trim()};
+  const m = $("addMsg"); m.className=""; m.textContent="";
+  if(!employee.name || !employee.id){ m.className="err"; m.textContent="Full Name and Punch ID are required."; return; }
+  $("addBtn").disabled = true;
+  try{
+    await api({action:"add", employee});
+    ["aName","aPos","aPhone","aId","aLoc"].forEach(i => $(i).value="");
+    m.className="ok"; m.textContent = `Added ${employee.name}. Link: ${location.origin}/#${employee.id}`;
+    load();
+  }catch(e){ m.className="err"; m.textContent = e.message; }
+  $("addBtn").disabled = false;
+});
+
+if(token){ showPanel(true); load(); } else showPanel(false);
+</script>
+</body>
+</html>
