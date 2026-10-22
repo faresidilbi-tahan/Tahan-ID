@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Abed Tahan – Employee</title>
 <meta name="robots" content="noindex">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <style>
   body{margin:0;background:#fff;color:#1B1F24;font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.5}
   .wrap{max-width:420px;margin:0 auto;padding:40px 20px}
@@ -19,49 +18,26 @@
 <div class="wrap" id="app"><p class="msg">Loading…</p></div>
 
 <script>
-// Google Sheet → File → Share → Publish to web → sheet → CSV → paste link here
-const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSXetsqtISg7SdjKjOuCOy57p2V0SNZEKepweM3dhLz4C5lpua-b2kjTg0Y-Xx150mfjM4u0qV8aTgZ/pub?gid=0&single=true&output=csv";
-
-// Sample data used while SHEET_CSV_URL is empty
-const SAMPLE = [
-  {"Full Name":"Fares Haddad","Position":"Digital Marketing & E-commerce","Phone Number":"+961 3 000 000","Punch ID":"1001","Location":"Mazraa"},
-  {"Full Name":"Nour Saleh","Position":"Customer Service Agent","Phone Number":"+961 3 111 111","Punch ID":"1002","Location":"Rabieh"}
-];
-
 const app = document.getElementById("app");
-const norm = s => String(s).trim().toLowerCase().replace(/[^a-z0-9]/g,"");
-function col(row, ...names){
-  for(const n of names){
-    const k = Object.keys(row).find(k => norm(k) === n);
-    if(k && String(row[k]).trim()) return String(row[k]).trim();
-  }
-  return "—";
-}
-
-function render(r){
-  app.innerHTML = `
-    <h1>${col(r,"fullname","fullnameenglish","name")}</h1>
-    <dl>
-      <dt>Position</dt><dd>${col(r,"position","title")}</dd>
-      <dt>Phone</dt><dd>${col(r,"phonenumber","phone","mobile")}</dd>
-      <dt>Punch ID</dt><dd>${col(r,"punchid","punchidnumber","id")}</dd>
-      <dt>Location</dt><dd>${col(r,"location","branch")}</dd>
-    </dl>`;
-}
+const esc = s => String(s || "—").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 async function load(){
   const id = location.hash.slice(1).trim() || new URLSearchParams(location.search).get("id") || "";
   if(!id){ app.innerHTML = '<p class="msg">No employee ID in this link.</p>'; return; }
-  let rows;
   try{
-    if(SHEET_CSV_URL){
-      const res = await fetch(SHEET_CSV_URL + (SHEET_CSV_URL.includes("?")?"&":"?") + "t=" + Date.now(), {cache:"no-store"});
-      if(!res.ok) throw 0;
-      rows = Papa.parse(await res.text(), {header:true, skipEmptyLines:true}).data;
-    } else rows = SAMPLE;
-  }catch(e){ app.innerHTML = '<p class="msg">Could not load employee data. Please try again.</p>'; return; }
-  const row = rows.find(r => col(r,"punchid","punchidnumber","id") === id);
-  row ? render(row) : (app.innerHTML = `<p class="msg">No employee found for ID ${id}.</p>`);
+    const res = await fetch("/api/employee?id=" + encodeURIComponent(id));
+    if(res.status === 404){ app.innerHTML = `<p class="msg">No employee found for ID ${esc(id)}.</p>`; return; }
+    if(!res.ok) throw 0;
+    const e = await res.json();
+    app.innerHTML = `
+      <h1>${esc(e.name)}</h1>
+      <dl>
+        <dt>Position</dt><dd>${esc(e.position)}</dd>
+        <dt>Phone</dt><dd>${esc(e.phone)}</dd>
+        <dt>Punch ID</dt><dd>${esc(e.id)}</dd>
+        <dt>Location</dt><dd>${esc(e.location)}</dd>
+      </dl>`;
+  }catch(e){ app.innerHTML = '<p class="msg">Could not load employee data. Please try again.</p>'; }
 }
 window.addEventListener("hashchange", load);
 load();
