@@ -13,6 +13,7 @@
   .wrap{max-width:420px;margin:0 auto;padding:32px 20px}
   .confirm{display:flex;align-items:center;gap:10px;background:var(--blue);color:#fff;border-radius:6px;padding:12px 14px;margin-bottom:24px;font-size:15px;font-weight:500}
   .confirm svg{width:20px;height:20px;flex:none}
+  .photo{width:120px;height:120px;border-radius:50%;object-fit:cover;display:block;margin:0 0 18px;border:3px solid var(--blue)}
   h1{font-size:22px;margin:0 0 20px}
   dl{margin:0;display:grid;grid-template-columns:120px 1fr;gap:10px 16px;font-size:16px}
   dt{color:#6B7280} dd{margin:0;font-weight:500;overflow-wrap:anywhere}
@@ -30,37 +31,46 @@
 const app = document.getElementById("app");
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>';
+const row = (label, v) => v ? `<dt>${label}</dt><dd>${esc(v)}</dd>` : "";
 let currentCode = "";
 
 async function load(){
-  currentCode = location.hash.slice(1).trim() || new URLSearchParams(location.search).get("id") || "";
-  if(!currentCode){ app.innerHTML = '<p class="msg">No employee code in this link.</p>'; return; }
+  currentCode = location.hash.slice(1).trim() || new URLSearchParams(location.search).get("code") || "";
+  if(!currentCode){ app.innerHTML = '<p class="msg">Invalid link.</p>'; return; }
   try{
-    const res = await fetch("/api/employee?id=" + encodeURIComponent(currentCode));
+    const res = await fetch("/api/employee?code=" + encodeURIComponent(currentCode));
     if(res.status === 404){ app.innerHTML = '<p class="msg">No employee found for this link.</p>'; return; }
     if(!res.ok) throw 0;
     const e = await res.json();
-    const fields = [
-      ["Position", e.position],
-      ["Phone", e.phone],
-      ["Punch ID", e.id],
-      ["Department", e.department]
-    ].filter(([, v]) => String(v ?? "").trim());
     app.innerHTML = `
       <div class="confirm">${CHECK}<span>Verified: this person is a current Abed Tahan employee.</span></div>
+      <img class="photo" id="photo" alt="">
       <h1>${esc(e.name)}</h1>
-      <dl>${fields.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
+      <dl>
+        ${row("Position", e.position)}
+        ${row("Phone", e.phone)}
+        ${row("Punch ID", e.id)}
+        ${row("Department", e.department)}
+      </dl>
       <button class="redeem" id="redeemBtn">Redeem discount</button>
       <div class="done" id="done"></div>`;
     document.getElementById("redeemBtn").addEventListener("click", redeem);
+    loadPhoto(e);
   }catch(e){ app.innerHTML = '<p class="msg">Could not load employee data. Please try again.</p>'; }
+}
+
+// Photo by Punch ID, falls back to default.jpg
+function loadPhoto(e){
+  const img = document.getElementById("photo");
+  img.onerror = () => { img.onerror = () => img.remove(); img.src = "/photos/default.jpg"; };
+  img.src = "/photos/" + encodeURIComponent(e.id) + ".jpg";
 }
 
 async function redeem(){
   const btn = document.getElementById("redeemBtn"), done = document.getElementById("done");
   btn.disabled = true; btn.textContent = "Redeeming…";
   try{
-    const res = await fetch("/api/redeem?id=" + encodeURIComponent(currentCode), {method:"POST"});
+    const res = await fetch("/api/redeem?code=" + encodeURIComponent(currentCode), {method:"POST"});
     if(!res.ok) throw 0;
     btn.textContent = "Discount redeemed";
     done.textContent = "Recorded. Thank you!";
