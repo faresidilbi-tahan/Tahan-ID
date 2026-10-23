@@ -187,7 +187,7 @@ $("addBtn").addEventListener("click", async () => {
 // ---- card generator (browser-side, uses /card-template.png) ----
 const TEMPLATE = "/card-template.png";
 const BLUE = "#005EB8", NAVY = "#1B2A4A";
-function loadImg(src){ return new Promise((res, rej) => { const i = new Image(); i.crossOrigin = "anonymous"; i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
+function loadImg(src){ return new Promise((res, rej) => { const i = new Image(); i.crossOrigin = "anonymous"; i.onload = () => res(i); i.onerror = () => rej(new Error("could not load " + src)); i.src = src; }); }
 function wrap(ctx, text, maxW){
   const words = text.split(" "), lines = []; let line = "";
   for(const w of words){ const t = line ? line + " " + w : w; if(ctx.measureText(t).width > maxW && line){ lines.push(line); line = w; } else line = t; }
