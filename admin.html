@@ -33,7 +33,7 @@
   .btn.danger:hover{background:#FEF2F2}
   .btn.white{background:transparent;color:#fff;border-color:rgba(255,255,255,.5)}
   .btn.white:hover{background:rgba(255,255,255,.12)}
-  .btn.sm{height:32px;padding:0 12px;font-size:13px;min-width:72px}
+  .btn.sm{height:30px;padding:0 8px;font-size:12px;min-width:58px}
 
   /* inputs */
   label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
@@ -67,13 +67,15 @@
   .tools{display:flex;gap:10px;margin-bottom:14px}
   .tools input{max-width:360px}
   .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r)}
-  table{width:100%;border-collapse:collapse;font-size:14px}
-  th,td{text-align:start;padding:11px 12px;border-bottom:1px solid var(--line);white-space:nowrap;vertical-align:middle}
+  table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
+  th,td{text-align:start;padding:8px 8px;border-bottom:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+  col.c-thumb{width:44px} col.c-id{width:62px} col.c-name{width:17%} col.c-pos{width:18%} col.c-phone{width:96px} col.c-dept{width:14%}
+  col.c-num{width:62px} col.c-link{width:52px} col.c-act{width:268px}
   th{background:#FAFAFB;color:var(--muted);font-weight:500;font-size:13px;position:sticky;top:0}
   tr:last-child td{border-bottom:0}
   tbody tr:hover td{background:#FAFCFF}
   td.num,th.num{text-align:end}
-  td.actions{display:flex;gap:6px}
+  td.actions{display:flex;gap:4px;overflow:visible}
   a.link{color:var(--blue);text-decoration:none}
   a.link:hover{text-decoration:underline}
   .thumb{width:36px;height:36px;border-radius:50%;object-fit:cover;background:var(--line);display:block}
@@ -156,8 +158,9 @@
         </div>
         <div class="tablewrap">
           <table>
+            <colgroup><col class="c-thumb"><col class="c-id"><col class="c-name"><col class="c-pos"><col class="c-phone"><col class="c-dept"><col class="c-num"><col class="c-num"><col class="c-link"><col class="c-act"></colgroup>
             <thead><tr>
-              <th></th><th data-i="punch">Punch ID</th><th data-i="name">Full Name</th><th data-i="position">Position</th><th data-i="phone">Phone</th><th data-i="department">Department</th>
+              <th></th><th data-i="idCol">ID</th><th data-i="name">Full Name</th><th data-i="position">Position</th><th data-i="phoneCol">Phone</th><th data-i="department">Department</th>
               <th class="num" data-i="scansCol">Scans</th><th class="num" data-i="redeemedCol">Redeemed</th><th data-i="link">Link</th><th></th>
             </tr></thead>
             <tbody id="rows"></tbody>
@@ -181,7 +184,7 @@ const I18N = {
       employees:"Employees",scans:"Total scans",redeemed:"Discounts redeemed",addTitle:"Add employee",name:"Full Name",position:"Position",
       phone:"Phone Number",punch:"Punch ID",department:"Department",photoOpt:"Photo (optional)",add:"Add employee",editTitle:"Edit employee",
       photoUrl:"Photo URL",uploadPhoto:"Upload new photo",save:"Save changes",cancel:"Cancel",listTitle:"Employees",search:"Search name, ID, department…",
-      refresh:"Refresh",scansCol:"Scans",redeemedCol:"Redeemed",link:"Link",open:"Open",copy:"Copy",copied:"Copied",card:"Card",edit:"Edit",remove:"Remove",
+      refresh:"Refresh",idCol:"ID",phoneCol:"Phone",scansCol:"Scans",redeemedCol:"Redeemed",link:"Link",open:"Open",copy:"Copy",copied:"Copied",card:"Card",edit:"Edit",remove:"Remove",
       loading:"Loading…",none:"No employees found.",required:"Full Name and Punch ID are required.",added:"Added {n}. Generating card…",
       addedCard:"Added {n}. Card downloaded.",uploading:"Uploading photo…",saving:"Saving…",saved:"Saved.",
       savedPhoto:"Saved. The new photo appears on the site in about a minute.",confirmRemove:"Remove {n} ({id})? Their QR code will stop working.",
@@ -190,7 +193,7 @@ const I18N = {
       employees:"الموظفون",scans:"إجمالي المسح",redeemed:"الحسومات المستخدمة",addTitle:"إضافة موظف",name:"الاسم الكامل",position:"المنصب",
       phone:"رقم الهاتف",punch:"رقم الموظف",department:"القسم",photoOpt:"الصورة (اختياري)",add:"إضافة موظف",editTitle:"تعديل موظف",
       photoUrl:"رابط الصورة",uploadPhoto:"رفع صورة جديدة",save:"حفظ التغييرات",cancel:"إلغاء",listTitle:"الموظفون",search:"ابحث بالاسم أو الرقم أو القسم…",
-      refresh:"تحديث",scansCol:"المسح",redeemedCol:"الحسومات",link:"الرابط",open:"فتح",copy:"نسخ",copied:"تم النسخ",card:"البطاقة",edit:"تعديل",remove:"حذف",
+      refresh:"تحديث",idCol:"الرقم",phoneCol:"الهاتف",scansCol:"المسح",redeemedCol:"الحسومات",link:"الرابط",open:"فتح",copy:"نسخ",copied:"تم النسخ",card:"البطاقة",edit:"تعديل",remove:"حذف",
       loading:"جارٍ التحميل…",none:"لا يوجد موظفون.",required:"الاسم الكامل ورقم الموظف مطلوبان.",added:"تمت إضافة {n}. جارٍ إنشاء البطاقة…",
       addedCard:"تمت إضافة {n}. تم تنزيل البطاقة.",uploading:"جارٍ رفع الصورة…",saving:"جارٍ الحفظ…",saved:"تم الحفظ.",
       savedPhoto:"تم الحفظ. ستظهر الصورة الجديدة على الموقع خلال دقيقة تقريباً.",confirmRemove:"حذف {n} ({id})؟ سيتوقف رمز QR الخاص به عن العمل.",
@@ -251,7 +254,7 @@ function render(){
   $("rows").innerHTML = list.map(e => `
     <tr>
       <td class="thumbcell"><img class="thumb" src="${esc(e.photo || '/photos/default.jpg')}" alt="" loading="lazy" onerror="this.onerror=null;this.src='/photos/default.jpg'"></td>
-      <td>${esc(e.id)}</td><td>${esc(e.name)}</td><td>${esc(e.position)}</td><td>${esc(e.phone)}</td><td>${esc(e.department)}</td>
+      <td>${esc(e.id)}</td><td title="${esc(e.name)}">${esc(e.name)}</td><td title="${esc(e.position)}">${esc(e.position)}</td><td>${esc(e.phone)}</td><td title="${esc(e.department)}">${esc(e.department)}</td>
       <td class="num">${e.scans}</td><td class="num">${e.redeemed}</td>
       <td><a class="link" href="/#${esc(e.code || e.id)}" target="_blank">${t("open")}</a></td>
       <td class="actions">
