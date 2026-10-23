@@ -69,8 +69,8 @@
   .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r)}
   table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
   th,td{text-align:start;padding:8px 8px;border-bottom:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
-  col.c-thumb{width:44px} col.c-id{width:62px} col.c-name{width:17%} col.c-pos{width:18%} col.c-phone{width:96px} col.c-dept{width:14%}
-  col.c-num{width:62px} col.c-link{width:52px} col.c-act{width:268px}
+  col.c-thumb{width:48px} col.c-id{width:70px} col.c-name{width:24%} col.c-pos{width:28%} col.c-phone{width:110px} col.c-dept{width:20%}
+  col.c-num{width:80px}
   th{background:#FAFAFB;color:var(--muted);font-weight:500;font-size:13px;position:sticky;top:0}
   th[data-sort]{cursor:pointer;user-select:none}
   th[data-sort]:hover{color:var(--ink)}
@@ -83,6 +83,13 @@
   a.link:hover{text-decoration:underline}
   .thumb{width:36px;height:36px;border-radius:50%;object-fit:cover;background:var(--line);display:block}
   td.thumbcell{width:48px;padding-top:6px;padding-bottom:6px}
+  tr.main{cursor:pointer}
+  tr.main.open td{background:#F3F8FD}
+  tr.detail td{background:#F9FBFD;padding:12px 12px 14px;white-space:normal}
+  .detail-in{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .detail-in .lnk{color:var(--muted);font-size:13px;margin-inline-end:auto;overflow-wrap:anywhere}
+  .detail-in .lnk a{color:var(--blue);text-decoration:none}
+  .io{display:flex;gap:8px;flex-wrap:wrap}
   .preview{width:72px;height:72px;border-radius:50%;object-fit:cover;background:var(--line);display:block}
   .hide{display:none!important}
   @media (max-width:640px){.stat b{font-size:22px}.bar img{height:36px}}
@@ -158,13 +165,28 @@
         <div class="tools">
           <input id="search" data-ph="search" placeholder="Search name, ID, department…">
           <button class="btn ghost" id="refreshBtn" data-i="refresh">Refresh</button>
+          <span style="flex:1"></span>
+          <button class="btn ghost" id="exportBtn" data-i="export">Export CSV</button>
+          <button class="btn ghost" id="importBtn" data-i="import">Import CSV</button>
+        </div>
+        <div class="panel hide" id="importBox" style="margin:0 0 14px">
+          <div class="panel-h"><h2 data-i="importTitle">Import employees from CSV</h2><button class="btn ghost sm" id="importClose" data-i="close">Close</button></div>
+          <div class="panel-b">
+            <p style="margin:0 0 12px;color:var(--muted);font-size:14px" data-i="importHelp">Columns: Full Name, Position, Phone Number, Punch ID, Department, Photo. Punch ID and Full Name are required. Rows whose Punch ID already exists are skipped.</p>
+            <div class="io">
+              <button class="btn ghost" id="sampleBtn" data-i="sample">Download sample CSV</button>
+              <input type="file" id="importFile" accept=".csv,text/csv" style="max-width:320px">
+              <button class="btn" id="importRun" data-i="importRun">Import</button>
+            </div>
+            <div class="note" id="importMsg"></div>
+          </div>
         </div>
         <div class="tablewrap">
           <table>
-            <colgroup><col class="c-thumb"><col class="c-id"><col class="c-name"><col class="c-pos"><col class="c-phone"><col class="c-dept"><col class="c-num"><col class="c-num"><col class="c-link"><col class="c-act"></colgroup>
+            <colgroup><col class="c-thumb"><col class="c-id"><col class="c-name"><col class="c-pos"><col class="c-phone"><col class="c-dept"><col class="c-num"><col class="c-num"></colgroup>
             <thead><tr>
               <th></th><th data-sort="id" data-i="idCol">ID</th><th data-sort="name" data-i="name">Full Name</th><th data-sort="position" data-i="position">Position</th><th data-sort="phone" data-i="phoneCol">Phone</th><th data-sort="department" data-i="department">Department</th>
-              <th class="num" data-sort="scans" data-i="scansCol">Scans</th><th class="num" data-sort="redeemed" data-i="redeemedCol">Redeemed</th><th data-i="link">Link</th><th></th>
+              <th class="num" data-sort="scans" data-i="scansCol">Scans</th><th class="num" data-sort="redeemed" data-i="redeemedCol">Redeemed</th>
             </tr></thead>
             <tbody id="rows"></tbody>
           </table>
@@ -187,7 +209,9 @@ const I18N = {
       employees:"Employees",scans:"Total scans",redeemed:"Discounts redeemed",addTitle:"Add employee",name:"Full Name",position:"Position",
       phone:"Phone Number",punch:"Punch ID",department:"Department",photoOpt:"Photo (optional)",add:"Add employee",editTitle:"Edit employee",
       photoUrl:"Photo URL",uploadPhoto:"Upload new photo",save:"Save changes",cancel:"Cancel",listTitle:"Employees",search:"Search name, ID, department…",
-      refresh:"Refresh",idCol:"ID",phoneCol:"Phone",scansCol:"Scans",redeemedCol:"Redeemed",link:"Link",open:"Open",copy:"Copy",copied:"Copied",card:"Card",edit:"Edit",remove:"Remove",
+      refresh:"Refresh",export:"Export CSV",import:"Import CSV",importTitle:"Import employees from CSV",close:"Close",
+      importHelp:"Columns: Full Name, Position, Phone Number, Punch ID, Department, Photo. Punch ID and Full Name are required. Rows whose Punch ID already exists are skipped.",
+      sample:"Download sample CSV",importRun:"Import",chooseFile:"Choose a CSV file first.",importing:"Importing {a} of {b}…",imported:"Imported {a}. Skipped {b}.",idCol:"ID",phoneCol:"Phone",scansCol:"Scans",redeemedCol:"Redeemed",link:"Link",open:"Open",copy:"Copy",copied:"Copied",card:"Card",edit:"Edit",remove:"Remove",
       loading:"Loading…",none:"No employees found.",required:"Full Name and Punch ID are required.",added:"Added {n}. Generating card…",
       addedCard:"Added {n}. Card downloaded.",uploading:"Uploading photo…",saving:"Saving…",saved:"Saved.",
       savedPhoto:"Saved. The new photo appears on the site in about a minute.",confirmRemove:"Remove {n} ({id})? Their QR code will stop working.",
@@ -196,7 +220,9 @@ const I18N = {
       employees:"الموظفون",scans:"إجمالي المسح",redeemed:"الحسومات المستخدمة",addTitle:"إضافة موظف",name:"الاسم الكامل",position:"المنصب",
       phone:"رقم الهاتف",punch:"رقم الموظف",department:"القسم",photoOpt:"الصورة (اختياري)",add:"إضافة موظف",editTitle:"تعديل موظف",
       photoUrl:"رابط الصورة",uploadPhoto:"رفع صورة جديدة",save:"حفظ التغييرات",cancel:"إلغاء",listTitle:"الموظفون",search:"ابحث بالاسم أو الرقم أو القسم…",
-      refresh:"تحديث",idCol:"الرقم",phoneCol:"الهاتف",scansCol:"المسح",redeemedCol:"الحسومات",link:"الرابط",open:"فتح",copy:"نسخ",copied:"تم النسخ",card:"البطاقة",edit:"تعديل",remove:"حذف",
+      refresh:"تحديث",export:"تصدير CSV",import:"استيراد CSV",importTitle:"استيراد موظفين من ملف CSV",close:"إغلاق",
+      importHelp:"الأعمدة: Full Name, Position, Phone Number, Punch ID, Department, Photo. رقم الموظف والاسم الكامل مطلوبان. الصفوف التي يوجد رقمها مسبقاً يتم تجاوزها.",
+      sample:"تنزيل نموذج CSV",importRun:"استيراد",chooseFile:"اختر ملف CSV أولاً.",importing:"جارٍ الاستيراد {a} من {b}…",imported:"تم استيراد {a}. تم تجاوز {b}.",idCol:"الرقم",phoneCol:"الهاتف",scansCol:"المسح",redeemedCol:"الحسومات",link:"الرابط",open:"فتح",copy:"نسخ",copied:"تم النسخ",card:"البطاقة",edit:"تعديل",remove:"حذف",
       loading:"جارٍ التحميل…",none:"لا يوجد موظفون.",required:"الاسم الكامل ورقم الموظف مطلوبان.",added:"تمت إضافة {n}. جارٍ إنشاء البطاقة…",
       addedCard:"تمت إضافة {n}. تم تنزيل البطاقة.",uploading:"جارٍ رفع الصورة…",saving:"جارٍ الحفظ…",saved:"تم الحفظ.",
       savedPhoto:"تم الحفظ. ستظهر الصورة الجديدة على الموقع خلال دقيقة تقريباً.",confirmRemove:"حذف {n} ({id})؟ سيتوقف رمز QR الخاص به عن العمل.",
@@ -271,18 +297,19 @@ function render(){
     });
   }
   $("rows").innerHTML = list.map(e => `
-    <tr>
+    <tr class="main${openId===e.id?" open":""}" data-id="${esc(e.id)}">
       <td class="thumbcell"><img class="thumb" src="${esc(e.photo || '/photos/default.jpg')}" alt="" loading="lazy" onerror="this.onerror=null;this.src='/photos/default.jpg'"></td>
       <td>${esc(e.id)}</td><td title="${esc(e.name)}">${esc(e.name)}</td><td title="${esc(e.position)}">${esc(e.position)}</td><td>${esc(e.phone)}</td><td title="${esc(e.department)}">${esc(e.department)}</td>
       <td class="num">${e.scans}</td><td class="num">${e.redeemed}</td>
-      <td><a class="link" href="/#${esc(e.code || e.id)}" target="_blank">${t("open")}</a></td>
-      <td class="actions">
-        <button class="btn ghost sm copy" data-link="${location.origin}/#${esc(e.code || e.id)}">${t("copy")}</button>
-        <button class="btn ghost sm card" data-id="${esc(e.id)}">${t("card")}</button>
-        <button class="btn ghost sm edit" data-id="${esc(e.id)}">${t("edit")}</button>
-        <button class="btn danger sm danger" data-id="${esc(e.id)}" data-name="${esc(e.name)}">${t("remove")}</button>
-      </td>
-    </tr>`).join("") || `<tr><td colspan="10" style="color:var(--muted)">${t("none")}</td></tr>`;
+    </tr>
+    ${openId===e.id ? `<tr class="detail"><td colspan="8"><div class="detail-in">
+      <span class="lnk"><a href="/#${esc(e.code || e.id)}" target="_blank">${location.origin}/#${esc(e.code || e.id)}</a></span>
+      <button class="btn ghost sm copy" data-link="${location.origin}/#${esc(e.code || e.id)}">${t("copy")}</button>
+      <button class="btn ghost sm card" data-id="${esc(e.id)}">${t("card")}</button>
+      <button class="btn ghost sm edit" data-id="${esc(e.id)}">${t("edit")}</button>
+      <button class="btn danger sm danger" data-id="${esc(e.id)}" data-name="${esc(e.name)}">${t("remove")}</button>
+    </div></td></tr>` : ""}`).join("") || `<tr><td colspan="8" style="color:var(--muted)">${t("none")}</td></tr>`;
+  $("rows").querySelectorAll("tr.main").forEach(r => r.addEventListener("click", () => { openId = openId === r.dataset.id ? "" : r.dataset.id; render(); }));
   $("rows").querySelectorAll("button.danger").forEach(b => b.addEventListener("click", () => remove(b.dataset.id, b.dataset.name)));
   $("rows").querySelectorAll("button.edit").forEach(b => b.addEventListener("click", () => openEdit(employees.find(e => e.id === b.dataset.id))));
   $("rows").querySelectorAll("button.card").forEach(b => b.addEventListener("click", () => makeCard(employees.find(e => e.id === b.dataset.id), b)));
@@ -290,6 +317,66 @@ function render(){
     try{ await navigator.clipboard.writeText(b.dataset.link); b.textContent = t("copied"); setTimeout(()=>b.textContent=t("copy"),1200); }catch(e){ prompt("Copy link:", b.dataset.link); }
   }));
 }
+let openId = "";
+
+// ---- export / import ----
+const CSV_HEAD = ["Full Name","Position","Phone Number","Punch ID","Department","Photo"];
+const csvCell = v => { v = String(v ?? ""); return /[",\n]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v; };
+function downloadCsv(name, rows){
+  const blob = new Blob(["\ufeff" + rows.map(r => r.map(csvCell).join(",")).join("\n")], {type:"text/csv;charset=utf-8"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click();
+}
+$("exportBtn").addEventListener("click", () => {
+  downloadCsv("employees.csv", [[...CSV_HEAD,"Link","Scans","Redeemed"], ...employees.map(e => [e.name,e.position,e.phone,e.id,e.department,e.photo||"",`${location.origin}/#${e.code||e.id}`,e.scans,e.redeemed])]);
+});
+$("sampleBtn").addEventListener("click", () => {
+  downloadCsv("employees-sample.csv", [CSV_HEAD, ["Jad Khoury","Sales Executive","71-123456","2400","Mazraa Branch",""], ["Rana Saad","Cashier","03-654321","2401","Rabieh Branch",""]]);
+});
+$("importBtn").addEventListener("click", () => $("importBox").classList.toggle("hide"));
+$("importClose").addEventListener("click", () => $("importBox").classList.add("hide"));
+function parseCsv(text){
+  const rows = [], row = []; let cell = "", q = false;
+  const push = () => { row.push(cell); cell = ""; };
+  for(let i = 0; i < text.length; i++){
+    const c = text[i];
+    if(q){ if(c === '"'){ if(text[i+1] === '"'){ cell += '"'; i++; } else q = false; } else cell += c; }
+    else if(c === '"') q = true;
+    else if(c === ",") push();
+    else if(c === "\n" || c === "\r"){ if(c === "\r" && text[i+1] === "\n") i++; push(); rows.push(row.splice(0)); }
+    else cell += c;
+  }
+  if(cell !== "" || row.length){ push(); rows.push(row); }
+  return rows.filter(r => r.some(v => v.trim()));
+}
+const normKey = k => String(k).trim().toLowerCase().replace(/[^a-z0-9]/g,"");
+$("importRun").addEventListener("click", async () => {
+  const m = $("importMsg"); m.className = "note";
+  const f = $("importFile").files[0];
+  if(!f){ m.className = "note err"; m.textContent = t("chooseFile"); return; }
+  const text = (await f.text()).replace(/^\ufeff/, "");
+  const [head, ...body] = parseCsv(text);
+  const keys = head.map(normKey);
+  const col = (r, ...names) => { for(const n of names){ const i = keys.indexOf(n); if(i >= 0 && r[i] !== undefined) return r[i].trim(); } return ""; };
+  const existing = new Set(employees.map(e => e.id));
+  let done = 0, skipped = 0;
+  $("importRun").disabled = true;
+  for(let i = 0; i < body.length; i++){
+    const r = body[i];
+    const employee = { name: col(r,"fullname","name"), position: col(r,"position"), phone: col(r,"phonenumber","phone"), id: col(r,"punchid","id"), department: col(r,"department","location") };
+    const photo = col(r,"photo","photourl");
+    m.textContent = t("importing", {a:i+1, b:body.length});
+    if(!employee.id || !employee.name || existing.has(employee.id)){ skipped++; continue; }
+    try{
+      await api({action:"add", employee});
+      if(photo) await api({action:"update", id: employee.id, fields:{photo}});
+      existing.add(employee.id); done++;
+    }catch(e){ skipped++; }
+  }
+  $("importRun").disabled = false;
+  m.className = "note ok"; m.textContent = t("imported", {a:done, b:skipped});
+  $("importFile").value = "";
+  load();
+});
 
 async function remove(id, name){
   if(!confirm(t("confirmRemove", {n:name, id}))) return;
