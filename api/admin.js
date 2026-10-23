@@ -34,6 +34,24 @@ module.exports = async (req, res) => {
     if (body.action === "list")   return res.json(await script({ action: "list" }));
     if (body.action === "add")    return res.json(await script({ action: "add", employee: body.employee }));
     if (body.action === "remove") return res.json(await script({ action: "remove", id: body.id }));
+    if (body.action === "update") return res.json(await script({ action: "update", id: body.id, fields: body.fields }));
+    if (body.action === "upload") {
+      // body.image = base64 JPEG (no data: prefix). Commits photos/<id>.jpg to GitHub, then stores the URL in the sheet.
+      const repo = process.env.GITHUB_REPO, token = process.env.GITHUB_TOKEN;
+      if (!repo || !token) return res.status(500).json({ error: "GITHUB_REPO / GITHUB_TOKEN not set" });
+      const path = `photos/${encodeURIComponent(body.id)}.jpg`;
+      const gh = (url, opt = {}) => fetch(url, { ...opt, headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json", ...(opt.headers || {}) } });
+      let sha;
+      const cur = await gh(`https://api.github.com/repos/${repo}/contents/${path}`);
+      if (cur.ok) sha = (await cur.json()).sha;
+      const put = await gh(`https://api.github.com/repos/${repo}/contents/${path}`, {
+        method: "PUT", body: JSON.stringify({ message: `photo ${body.id}`, content: body.image, sha })
+      });
+      if (!put.ok) return res.status(502).json({ error: "GitHub upload failed: " + (await put.text()).slice(0, 200) });
+      const url = `${process.env.PUBLIC_URL || "https://tahan-id.vercel.app"}/photos/${body.id}.jpg`;
+      const r = await script({ action: "update", id: body.id, fields: { photo: url } });
+      return res.json({ ok: true, url, ...r });
+    }
     res.status(400).json({ error: "Unknown action" });
   } catch (e) {
     res.status(502).json({ error: "Could not reach the sheet" });
