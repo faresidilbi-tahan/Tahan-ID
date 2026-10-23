@@ -6,11 +6,14 @@
 <title>Abed Tahan – Employee</title>
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{--blue:rgb(0,94,184)}
   body{margin:0;background:#fff;color:#1B1F24;font-family:"Outfit",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.5}
-  header{background:var(--blue);padding:10px 20px;text-align:center}
+  header{background:var(--blue);padding:10px 20px;display:flex;align-items:center;justify-content:center;position:relative}
+  .lang{position:absolute;right:16px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.45);border-radius:4px;padding:6px 12px;font-family:inherit;font-size:14px;cursor:pointer}
+  html[dir="rtl"] .lang{right:auto;left:16px}
+  html[dir="rtl"] body{font-family:"Cairo","Outfit",sans-serif}
   header img{height:65px;width:auto;display:inline-block}
   .wrap{max-width:420px;margin:0 auto;padding:32px 20px}
   .confirm{display:flex;align-items:center;gap:10px;background:whitesmoke;backdrop-filter:blur(12px);border:1px solid whitesmoke;color:#000;border-radius:4px;padding:12px 14px;margin-bottom:24px;font-size:15px;font-weight:500}
@@ -28,51 +31,69 @@
 </style>
 </head>
 <body>
-<header><img src="https://abedtahan.com/cdn/shop/files/AT_Logo_400x200_Transparent.png?v=1732612010&width=250" alt="Abed Tahan"></header>
+<header><img src="https://abedtahan.com/cdn/shop/files/AT_Logo_400x200_Transparent.png?v=1732612010&width=250" alt="Abed Tahan"><button class="lang" id="langBtn">عربي</button></header>
 <div class="wrap" id="app"><p class="msg">Loading…</p></div>
 
 <script>
 const app = document.getElementById("app");
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>';
 const row = (label, v) => v ? `<dt>${label}</dt><dd>${esc(v)}</dd>` : "";
 let currentCode = "";
+const I18N = {
+  en:{verified:"Verified: this person is a current Abed Tahan employee.",position:"Position",phone:"Phone",punch:"Punch ID",department:"Department",
+      redeem:"Redeem discount",redeeming:"Redeeming…",redeemed:"Discount redeemed",recorded:"Recorded. Thank you!",fail:"Could not record. Please try again.",
+      invalid:"Invalid link.",notfound:"No employee found for this link.",error:"Could not load employee data. Please try again.",loading:"Loading…",toggle:"عربي"},
+  ar:{verified:"تم التحقق: هذا الشخص موظف حالي في عبد طحان.",position:"المنصب",phone:"الهاتف",punch:"رقم الموظف",department:"القسم",
+      redeem:"استخدام الحسم",redeeming:"جارٍ التسجيل…",redeemed:"تم استخدام الحسم",recorded:"تم التسجيل. شكراً لك!",fail:"تعذّر التسجيل. حاول مرة أخرى.",
+      invalid:"الرابط غير صالح.",notfound:"لم يتم العثور على موظف لهذا الرابط.",error:"تعذّر تحميل بيانات الموظف. حاول مرة أخرى.",loading:"جارٍ التحميل…",toggle:"English"}
+};
+let lang = localStorage.getItem("lang") || "en";
+let T = I18N[lang];
+function applyLang(){
+  T = I18N[lang];
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+  document.getElementById("langBtn").textContent = T.toggle;
+}
+document.getElementById("langBtn").addEventListener("click", () => { lang = lang === "en" ? "ar" : "en"; localStorage.setItem("lang", lang); applyLang(); load(); });
+applyLang();
 
 async function load(){
   currentCode = location.hash.slice(1).trim() || new URLSearchParams(location.search).get("id") || "";
-  if(!currentCode){ app.innerHTML = '<p class="msg">Invalid link.</p>'; return; }
+  if(!currentCode){ app.innerHTML = `<p class="msg">${T.invalid}</p>`; return; }
+  app.innerHTML = `<p class="msg">${T.loading}</p>`;
   try{
     const res = await fetch("/api/employee?id=" + encodeURIComponent(currentCode));
-    if(res.status === 404){ app.innerHTML = '<p class="msg">No employee found for this link.</p>'; return; }
+    if(res.status === 404){ app.innerHTML = `<p class="msg">${T.notfound}</p>`; return; }
     if(!res.ok) throw 0;
     const e = await res.json();
     app.innerHTML = `
-      <div class="confirm">${CHECK}<span>Verified: this person is a current Abed Tahan employee.</span></div>
+      <div class="confirm"><span>${T.verified}</span></div>
       <img class="photo" src="${esc(e.photo || '/photos/default.jpg')}" alt="" onerror="this.onerror=null;this.src='/photos/default.jpg'">
       <h1>${esc(e.name)}</h1>
       <dl>
-        ${row("Position", e.position)}
-        ${row("Phone", e.phone)}
-        ${row("Punch ID", e.id)}
-        ${row("Department", e.department)}
+        ${row(T.position, e.position)}
+        ${row(T.phone, e.phone)}
+        ${row(T.punch, e.id)}
+        ${row(T.department, e.department)}
       </dl>
-      <button class="redeem" id="redeemBtn">Redeem discount</button>
+      <button class="redeem" id="redeemBtn">${T.redeem}</button>
       <div class="done" id="done"></div>`;
     document.getElementById("redeemBtn").addEventListener("click", redeem);
-  }catch(e){ app.innerHTML = '<p class="msg">Could not load employee data. Please try again.</p>'; }
+  }catch(e){ app.innerHTML = `<p class="msg">${T.error}</p>`; }
 }
 
 async function redeem(){
   const btn = document.getElementById("redeemBtn"), done = document.getElementById("done");
-  btn.disabled = true; btn.textContent = "Redeeming…";
+  btn.disabled = true; btn.textContent = T.redeeming;
   try{
     const res = await fetch("/api/redeem?id=" + encodeURIComponent(currentCode), {method:"POST"});
     if(!res.ok) throw 0;
-    btn.textContent = "Discount redeemed";
-    done.textContent = "Recorded. Thank you!";
+    btn.textContent = T.redeemed;
+    done.textContent = T.recorded;
   }catch(e){
-    btn.disabled = false; btn.textContent = "Redeem discount";
-    done.style.color = "#B91C1C"; done.textContent = "Could not record. Please try again.";
+    btn.disabled = false; btn.textContent = T.redeem;
+    done.style.color = "#B91C1C"; done.textContent = T.fail;
   }
 }
 window.addEventListener("hashchange", load);
