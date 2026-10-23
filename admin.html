@@ -72,6 +72,9 @@
   col.c-thumb{width:44px} col.c-id{width:62px} col.c-name{width:17%} col.c-pos{width:18%} col.c-phone{width:96px} col.c-dept{width:14%}
   col.c-num{width:62px} col.c-link{width:52px} col.c-act{width:268px}
   th{background:#FAFAFB;color:var(--muted);font-weight:500;font-size:13px;position:sticky;top:0}
+  th[data-sort]{cursor:pointer;user-select:none}
+  th[data-sort]:hover{color:var(--ink)}
+  th[data-sort].asc::after{content:" ▲";font-size:9px} th[data-sort].desc::after{content:" ▼";font-size:9px}
   tr:last-child td{border-bottom:0}
   tbody tr:hover td{background:#FAFCFF}
   td.num,th.num{text-align:end}
@@ -160,8 +163,8 @@
           <table>
             <colgroup><col class="c-thumb"><col class="c-id"><col class="c-name"><col class="c-pos"><col class="c-phone"><col class="c-dept"><col class="c-num"><col class="c-num"><col class="c-link"><col class="c-act"></colgroup>
             <thead><tr>
-              <th></th><th data-i="idCol">ID</th><th data-i="name">Full Name</th><th data-i="position">Position</th><th data-i="phoneCol">Phone</th><th data-i="department">Department</th>
-              <th class="num" data-i="scansCol">Scans</th><th class="num" data-i="redeemedCol">Redeemed</th><th data-i="link">Link</th><th></th>
+              <th></th><th data-sort="id" data-i="idCol">ID</th><th data-sort="name" data-i="name">Full Name</th><th data-sort="position" data-i="position">Position</th><th data-sort="phone" data-i="phoneCol">Phone</th><th data-sort="department" data-i="department">Department</th>
+              <th class="num" data-sort="scans" data-i="scansCol">Scans</th><th class="num" data-sort="redeemed" data-i="redeemedCol">Redeemed</th><th data-i="link">Link</th><th></th>
             </tr></thead>
             <tbody id="rows"></tbody>
           </table>
@@ -248,9 +251,25 @@ async function load(){
   }catch(e){ $("listMsg").className="note err"; $("listMsg").textContent = e.message; }
 }
 
+let sortKey = "", sortDir = 1;
+document.querySelectorAll("th[data-sort]").forEach(th => th.addEventListener("click", () => {
+  const k = th.dataset.sort;
+  if(sortKey === k) sortDir = -sortDir; else { sortKey = k; sortDir = 1; }
+  document.querySelectorAll("th[data-sort]").forEach(x => x.classList.remove("asc","desc"));
+  th.classList.add(sortDir === 1 ? "asc" : "desc");
+  render();
+}));
 function render(){
   const q = $("search").value.trim().toLowerCase();
-  const list = employees.filter(e => !q || [e.name,e.id,e.position,e.department,e.phone].join(" ").toLowerCase().includes(q));
+  let list = employees.filter(e => !q || [e.name,e.id,e.position,e.department,e.phone].join(" ").toLowerCase().includes(q));
+  if(sortKey){
+    const numeric = ["id","scans","redeemed"].includes(sortKey);
+    list = [...list].sort((a,b) => {
+      const va = a[sortKey] ?? "", vb = b[sortKey] ?? "";
+      const c = numeric ? (Number(va)||0) - (Number(vb)||0) : String(va).localeCompare(String(vb), undefined, {sensitivity:"base"});
+      return c * sortDir;
+    });
+  }
   $("rows").innerHTML = list.map(e => `
     <tr>
       <td class="thumbcell"><img class="thumb" src="${esc(e.photo || '/photos/default.jpg')}" alt="" loading="lazy" onerror="this.onerror=null;this.src='/photos/default.jpg'"></td>
