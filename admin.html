@@ -78,6 +78,7 @@
         <div><label>Phone Number</label><input id="aPhone"></div>
         <div><label>Punch ID</label><input id="aId"></div>
         <div><label>Department</label><input id="aDept"></div>
+        <div><label>Photo (optional)</label><input type="file" id="aFile" accept="image/*"></div>
         <div><button class="btn" id="addBtn" style="width:100%">Add</button></div>
       </div>
       <div id="addMsg"></div>
@@ -197,11 +198,13 @@ $("addBtn").addEventListener("click", async () => {
   $("addBtn").disabled = true;
   try{
     const d = await api({action:"add", employee});
-    ["aName","aPos","aPhone","aId","aDept"].forEach(i => $(i).value="");
+    const f = $("aFile").files[0];
+    if(f){ m.textContent = "Uploading photo…"; const image = await fileToJpeg(f); await api({ action:"upload", id: employee.id, image }); }
+    ["aName","aPos","aPhone","aId","aDept","aFile"].forEach(i => $(i).value=""); $("aFile").value="";
     m.className="ok"; m.textContent = `Added ${employee.name}. Generating card…`;
     await load();
     const added = employees.find(e => e.id === employee.id);
-    if(added){ await makeCard(added); m.textContent = `Added ${employee.name}. Card downloaded.`; }
+    if(added){ if(f) added.photo = URL.createObjectURL(f); await makeCard(added); m.textContent = `Added ${employee.name}. Card downloaded.`; }
   }catch(e){ m.className="err"; m.textContent = e.message; }
   $("addBtn").disabled = false;
 });
