@@ -1,7 +1,7 @@
-// POST /api/redeem?code=abc123 — increments the Redeemed column
+// POST /api/redeem?id=abc123  (also accepts ?code=) — increments the Redeemed column
 module.exports = async (req, res) => {
   if (req.method !== "POST") return res.status(405).json({ error: "POST only" });
-  const code = String(req.query.code || "").trim();
+  const code = String(req.query.id || req.query.code || "").trim();
   if (!code) return res.status(400).json({ error: "Missing code" });
   try {
     const r = await fetch(process.env.APPS_SCRIPT_URL, {
