@@ -1,76 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Abed Tahan – Employee</title>
-<meta name="robots" content="noindex">
-<style>
-  :root{--blue:rgb(0,94,184)}
-  body{margin:0;background:#fff;color:#1B1F24;font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.5}
-  header{background:var(--blue);padding:10px 20px;text-align:center}
-  header img{height:65px;width:auto;display:inline-block}
-  .wrap{max-width:420px;margin:0 auto;padding:32px 20px}
-  .confirm{display:flex;align-items:center;gap:10px;background:var(--blue);color:#fff;border-radius:6px;padding:12px 14px;margin-bottom:24px;font-size:15px;font-weight:500}
-  .confirm svg{width:20px;height:20px;flex:none}
-  h1{font-size:22px;margin:0 0 20px}
-  dl{margin:0;display:grid;grid-template-columns:120px 1fr;gap:10px 16px;font-size:16px}
-  dt{color:#6B7280} dd{margin:0;font-weight:500;overflow-wrap:anywhere}
-  .msg{color:#6B7280;font-size:16px}
-  .redeem{display:block;width:100%;margin-top:28px;background:var(--blue);color:#fff;border:0;border-radius:6px;padding:14px;font:inherit;font-size:16px;font-weight:600;cursor:pointer}
-  .redeem:disabled{background:#9CA3AF;cursor:default}
-  .done{margin-top:12px;color:#15803D;font-size:15px;font-weight:500;text-align:center}
-</style>
-</head>
-<body>
-<header><img src="https://abedtahan.com/cdn/shop/files/AT_Logo_400x200_Transparent.png?v=1732612010&width=250" alt="Abed Tahan"></header>
-<div class="wrap" id="app"><p class="msg">Loading…</p></div>
 
 <script>
 const app = document.getElementById("app");
+const esc = s => String(s || "—").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>';
-const row = (label, v) => v ? `<dt>${label}</dt><dd>${esc(v)}</dd>` : "";
+let currentId = "";
 let currentCode = "";
 
 async function load(){
+  currentId = location.hash.slice(1).trim() || new URLSearchParams(location.search).get("id") || "";
+  if(!currentId){ app.innerHTML = '<p class="msg">No employee ID in this link.</p>'; return; }
   currentCode = location.hash.slice(1).trim() || new URLSearchParams(location.search).get("id") || "";
-  if(!currentCode){ app.innerHTML = '<p class="msg">Invalid link.</p>'; return; }
-  try{
+  if(!currentCode){ app.innerHTML = '<p class="msg">No employee code in this link.</p>'; return; }
+try{
+    const res = await fetch("/api/employee?id=" + encodeURIComponent(currentId));
+    if(res.status === 404){ app.innerHTML = `<p class="msg">No employee found for ID ${esc(currentId)}.</p>`; return; }
     const res = await fetch("/api/employee?id=" + encodeURIComponent(currentCode));
     if(res.status === 404){ app.innerHTML = '<p class="msg">No employee found for this link.</p>'; return; }
-    if(!res.ok) throw 0;
-    const e = await res.json();
-    app.innerHTML = `
-      <div class="confirm">${CHECK}<span>Verified: this person is a current Abed Tahan employee.</span></div>
-      <h1>${esc(e.name)}</h1>
+if(!res.ok) throw 0;
+const e = await res.json();
+    const fields = [
+      ["Position", e.position],
+      ["Phone", e.phone],
+      ["Punch ID", e.id],
+      ["Department", e.department]
+    ].filter(([, v]) => String(v ?? "").trim());
+app.innerHTML = `
+     <div class="confirm">${CHECK}<span>Verified: this person is a current Abed Tahan employee.</span></div>
+     <h1>${esc(e.name)}</h1>
       <dl>
-        ${row("Position", e.position)}
-        ${row("Phone", e.phone)}
-        ${row("Punch ID", e.id)}
-        ${row("Department", e.department)}
+        <dt>Position</dt><dd>${esc(e.position)}</dd>
+        <dt>Phone</dt><dd>${esc(e.phone)}</dd>
+        <dt>Punch ID</dt><dd>${esc(e.id)}</dd>
+        <dt>Location</dt><dd>${esc(e.location)}</dd>
       </dl>
-      <button class="redeem" id="redeemBtn">Redeem discount</button>
-      <div class="done" id="done"></div>`;
-    document.getElementById("redeemBtn").addEventListener("click", redeem);
-  }catch(e){ app.innerHTML = '<p class="msg">Could not load employee data. Please try again.</p>'; }
-}
-
-async function redeem(){
-  const btn = document.getElementById("redeemBtn"), done = document.getElementById("done");
-  btn.disabled = true; btn.textContent = "Redeeming…";
-  try{
+      <dl>${fields.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
+     <button class="redeem" id="redeemBtn">Redeem discount</button>
+     <div class="done" id="done"></div>`;
+document.getElementById("redeemBtn").addEventListener("click", redeem);
+@@ -59,7 +60,7 @@ <h1>${esc(e.name)}</h1>
+const btn = document.getElementById("redeemBtn"), done = document.getElementById("done");
+btn.disabled = true; btn.textContent = "Redeeming…";
+try{
+    const res = await fetch("/api/redeem?id=" + encodeURIComponent(currentId), {method:"POST"});
     const res = await fetch("/api/redeem?id=" + encodeURIComponent(currentCode), {method:"POST"});
-    if(!res.ok) throw 0;
-    btn.textContent = "Discount redeemed";
-    done.textContent = "Recorded. Thank you!";
-  }catch(e){
-    btn.disabled = false; btn.textContent = "Redeem discount";
-    done.style.color = "#B91C1C"; done.textContent = "Could not record. Please try again.";
-  }
-}
-window.addEventListener("hashchange", load);
-load();
-</script>
-</body>
-</html>
+if(!res.ok) throw 0;
+btn.textContent = "Discount redeemed";
+done.textContent = "Recorded. Thank you!";
