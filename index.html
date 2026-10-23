@@ -34,10 +34,10 @@ const row = (label, v) => v ? `<dt>${label}</dt><dd>${esc(v)}</dd>` : "";
 let currentCode = "";
 
 async function load(){
-  currentCode = location.hash.slice(1).trim() || new URLSearchParams(location.search).get("code") || "";
+  currentCode = location.hash.slice(1).trim() || new URLSearchParams(location.search).get("id") || "";
   if(!currentCode){ app.innerHTML = '<p class="msg">Invalid link.</p>'; return; }
   try{
-    const res = await fetch("/api/employee?code=" + encodeURIComponent(currentCode));
+    const res = await fetch("/api/employee?id=" + encodeURIComponent(currentCode));
     if(res.status === 404){ app.innerHTML = '<p class="msg">No employee found for this link.</p>'; return; }
     if(!res.ok) throw 0;
     const e = await res.json();
@@ -60,7 +60,7 @@ async function redeem(){
   const btn = document.getElementById("redeemBtn"), done = document.getElementById("done");
   btn.disabled = true; btn.textContent = "Redeeming…";
   try{
-    const res = await fetch("/api/redeem?code=" + encodeURIComponent(currentCode), {method:"POST"});
+    const res = await fetch("/api/redeem?id=" + encodeURIComponent(currentCode), {method:"POST"});
     if(!res.ok) throw 0;
     btn.textContent = "Discount redeemed";
     done.textContent = "Recorded. Thank you!";
