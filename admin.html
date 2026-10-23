@@ -76,6 +76,8 @@
   td.actions{display:flex;gap:6px}
   a.link{color:var(--blue);text-decoration:none}
   a.link:hover{text-decoration:underline}
+  .thumb{width:36px;height:36px;border-radius:50%;object-fit:cover;background:var(--line);display:block}
+  td.thumbcell{width:48px;padding-top:6px;padding-bottom:6px}
   .preview{width:72px;height:72px;border-radius:50%;object-fit:cover;background:var(--line);display:block}
   .hide{display:none!important}
   @media (max-width:640px){.stat b{font-size:22px}.bar img{height:36px}}
@@ -155,7 +157,7 @@
         <div class="tablewrap">
           <table>
             <thead><tr>
-              <th data-i="punch">Punch ID</th><th data-i="name">Full Name</th><th data-i="position">Position</th><th data-i="phone">Phone</th><th data-i="department">Department</th>
+              <th></th><th data-i="punch">Punch ID</th><th data-i="name">Full Name</th><th data-i="position">Position</th><th data-i="phone">Phone</th><th data-i="department">Department</th>
               <th class="num" data-i="scansCol">Scans</th><th class="num" data-i="redeemedCol">Redeemed</th><th data-i="link">Link</th><th></th>
             </tr></thead>
             <tbody id="rows"></tbody>
@@ -248,6 +250,7 @@ function render(){
   const list = employees.filter(e => !q || [e.name,e.id,e.position,e.department,e.phone].join(" ").toLowerCase().includes(q));
   $("rows").innerHTML = list.map(e => `
     <tr>
+      <td class="thumbcell"><img class="thumb" src="${esc(e.photo || '/photos/default.jpg')}" alt="" loading="lazy" onerror="this.onerror=null;this.src='/photos/default.jpg'"></td>
       <td>${esc(e.id)}</td><td>${esc(e.name)}</td><td>${esc(e.position)}</td><td>${esc(e.phone)}</td><td>${esc(e.department)}</td>
       <td class="num">${e.scans}</td><td class="num">${e.redeemed}</td>
       <td><a class="link" href="/#${esc(e.code || e.id)}" target="_blank">${t("open")}</a></td>
@@ -257,7 +260,7 @@ function render(){
         <button class="btn ghost sm edit" data-id="${esc(e.id)}">${t("edit")}</button>
         <button class="btn danger sm danger" data-id="${esc(e.id)}" data-name="${esc(e.name)}">${t("remove")}</button>
       </td>
-    </tr>`).join("") || `<tr><td colspan="9" style="color:var(--muted)">${t("none")}</td></tr>`;
+    </tr>`).join("") || `<tr><td colspan="10" style="color:var(--muted)">${t("none")}</td></tr>`;
   $("rows").querySelectorAll("button.danger").forEach(b => b.addEventListener("click", () => remove(b.dataset.id, b.dataset.name)));
   $("rows").querySelectorAll("button.edit").forEach(b => b.addEventListener("click", () => openEdit(employees.find(e => e.id === b.dataset.id))));
   $("rows").querySelectorAll("button.card").forEach(b => b.addEventListener("click", () => makeCard(employees.find(e => e.id === b.dataset.id), b)));
