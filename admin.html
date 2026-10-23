@@ -22,6 +22,9 @@
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;align-items:end}
   .btn{background:var(--blue);color:#fff;border:0;border-radius:6px;padding:11px 16px;font:inherit;font-weight:600;cursor:pointer}
   .btn.copy{background:#fff;color:var(--blue);border:1px solid #BFDBFE;padding:6px 10px;font-weight:500}
+  .btn.edit{background:#fff;color:#374151;border:1px solid #D1D5DB;padding:6px 10px;font-weight:500}
+  #editBox{border-color:var(--blue)}
+  .preview{width:72px;height:72px;border-radius:50%;object-fit:cover;background:#E5E7EB;display:block}
   .btn.card{background:#fff;color:#15803D;border:1px solid #BBF7D0;padding:6px 10px;font-weight:500}
   .btn.danger{background:#fff;color:#B91C1C;border:1px solid #FCA5A5;padding:6px 10px;font-weight:500}
   .btn:disabled{opacity:.5;cursor:default}
@@ -80,6 +83,22 @@
       <div id="addMsg"></div>
     </div>
 
+    <div class="box hide" id="editBox">
+      <h2>Edit employee <span id="eTitle" style="color:#6B7280;font-weight:400"></span></h2>
+      <div class="grid">
+        <div><label>Full Name</label><input id="eName"></div>
+        <div><label>Position</label><input id="ePos"></div>
+        <div><label>Phone Number</label><input id="ePhone"></div>
+        <div><label>Department</label><input id="eDept"></div>
+        <div><label>Photo URL</label><input id="ePhoto" placeholder="https://…/photos/name.jpg"></div>
+        <div><label>Upload new photo</label><input type="file" id="eFile" accept="image/*"></div>
+        <div><img class="preview" id="ePreview" alt=""></div>
+        <div><button class="btn" id="saveBtn" style="width:100%">Save</button></div>
+        <div><button class="btn edit" id="cancelBtn" style="width:100%">Cancel</button></div>
+      </div>
+      <div id="editMsg"></div>
+    </div>
+
     <div class="box">
       <h2>Employees</h2>
       <div class="tools">
@@ -88,7 +107,7 @@
       </div>
       <div class="tablewrap">
         <table>
-          <thead><tr><th>Punch ID</th><th>Full Name</th><th>Position</th><th>Phone</th><th>Department</th><th class="num">Scans</th><th class="num">Redeemed</th><th>Link</th><th>Card</th><th></th></tr></thead>
+          <thead><tr><th>Punch ID</th><th>Full Name</th><th>Position</th><th>Phone</th><th>Department</th><th class="num">Scans</th><th class="num">Redeemed</th><th>Link</th><th>Card</th><th></th><th></th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
       </div>
@@ -154,9 +173,11 @@ function render(){
       <td class="num">${e.scans}</td><td class="num">${e.redeemed}</td>
       <td><a class="link" href="/#${esc(e.code)}" target="_blank">open</a> · <button class="btn copy" data-link="${location.origin}/#${esc(e.code)}">copy</button></td>
       <td><button class="btn card" data-id="${esc(e.id)}">Card</button></td>
+      <td><button class="btn edit" data-id="${esc(e.id)}">Edit</button></td>
       <td><button class="btn danger" data-id="${esc(e.id)}" data-name="${esc(e.name)}">Remove</button></td>
-    </tr>`).join("") || `<tr><td colspan="10" style="color:#6B7280">No employees found.</td></tr>`;
+    </tr>`).join("") || `<tr><td colspan="11" style="color:#6B7280">No employees found.</td></tr>`;
   $("rows").querySelectorAll("button.danger").forEach(b => b.addEventListener("click", () => remove(b.dataset.id, b.dataset.name)));
+  $("rows").querySelectorAll("button.edit").forEach(b => b.addEventListener("click", () => openEdit(employees.find(e => e.id === b.dataset.id))));
   $("rows").querySelectorAll("button.card").forEach(b => b.addEventListener("click", () => makeCard(employees.find(e => e.id === b.dataset.id), b)));
   $("rows").querySelectorAll("button.copy").forEach(b => b.addEventListener("click", async () => {
     try{ await navigator.clipboard.writeText(b.dataset.link); b.textContent = "copied"; setTimeout(()=>b.textContent="copy",1200); }catch(e){ prompt("Copy link:", b.dataset.link); }
@@ -183,6 +204,49 @@ $("addBtn").addEventListener("click", async () => {
     if(added){ await makeCard(added); m.textContent = `Added ${employee.name}. Card downloaded.`; }
   }catch(e){ m.className="err"; m.textContent = e.message; }
   $("addBtn").disabled = false;
+});
+
+// ---- edit + photo upload ----
+let editing = null;
+function openEdit(e){
+  if(!e) return; editing = e;
+  $("eTitle").textContent = `— ${e.name} (${e.id})`;
+  $("eName").value = e.name || ""; $("ePos").value = e.position || ""; $("ePhone").value = e.phone || "";
+  $("eDept").value = e.department || ""; $("ePhoto").value = e.photo || ""; $("eFile").value = "";
+  $("ePreview").src = e.photo || "/photos/default.jpg";
+  $("editMsg").className = ""; $("editMsg").textContent = "";
+  $("editBox").classList.remove("hide"); $("editBox").scrollIntoView({behavior:"smooth"});
+}
+$("cancelBtn").addEventListener("click", () => { $("editBox").classList.add("hide"); editing = null; });
+$("eFile").addEventListener("change", () => { const f = $("eFile").files[0]; if(f) $("ePreview").src = URL.createObjectURL(f); });
+// resize to 600px square JPEG, return base64 without prefix
+function fileToJpeg(file){
+  return new Promise((res, rej) => {
+    const img = new Image(); img.onload = () => {
+      const S = 600, c = document.createElement("canvas"); c.width = S; c.height = S;
+      const ctx = c.getContext("2d"); const s = Math.max(S/img.width, S/img.height), w = img.width*s, h = img.height*s;
+      ctx.drawImage(img, (S-w)/2, (S-h)*0.3, w, h);
+      res(c.toDataURL("image/jpeg", 0.85).split(",")[1]);
+    }; img.onerror = rej; img.src = URL.createObjectURL(file);
+  });
+}
+$("saveBtn").addEventListener("click", async () => {
+  if(!editing) return;
+  const m = $("editMsg"); m.className = ""; m.textContent = "Saving…"; $("saveBtn").disabled = true;
+  try{
+    const fields = { name:$("eName").value.trim(), position:$("ePos").value.trim(), phone:$("ePhone").value.trim(), department:$("eDept").value.trim(), photo:$("ePhoto").value.trim() };
+    const f = $("eFile").files[0];
+    if(f){
+      m.textContent = "Uploading photo…";
+      const image = await fileToJpeg(f);
+      const r = await api({ action:"upload", id: editing.id, image });
+      fields.photo = r.url;
+    }
+    await api({ action:"update", id: editing.id, fields });
+    m.className = "ok"; m.textContent = f ? "Saved. The new photo appears on the site in about a minute (after Vercel redeploys)." : "Saved.";
+    await load();
+  }catch(e){ m.className = "err"; m.textContent = e.message; }
+  $("saveBtn").disabled = false;
 });
 
 // ---- card generator (browser-side, uses /card-template.png) ----
