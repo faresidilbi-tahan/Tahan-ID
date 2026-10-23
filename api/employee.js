@@ -6,7 +6,7 @@ module.exports = async (req, res) => {
     const r = await fetch(process.env.APPS_SCRIPT_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "get", id, secret: process.env.APPS_SCRIPT_SECRET })
+      body: JSON.stringify({ action: "get", id, code: id, secret: process.env.APPS_SCRIPT_SECRET })
     });
     const data = await r.json();
     if (data.error === "Not found") return res.status(404).json(data);
