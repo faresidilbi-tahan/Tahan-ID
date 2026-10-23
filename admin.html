@@ -5,19 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Abed Tahan – ID Admin</title>
 <meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   :root{--blue:rgb(0,94,184)}
-  body{margin:0;background:#F5F6F8;color:#1B1F24;font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.5}
+  body{margin:0;background:#F5F6F8;color:#1B1F24;font-family:"Outfit",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.5}
   header{background:var(--blue);padding:10px 20px;display:flex;align-items:center;justify-content:space-between}
   header img{height:52px;width:auto}
   header button{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.6);border-radius:6px;padding:7px 12px;font:inherit;cursor:pointer}
-  .wrap{max-width:1100px;margin:0 auto;padding:24px 16px 60px}
+  .wrap{max-width:1000px;margin:0 auto;padding:24px 16px 60px}
   .box{background:#fff;border:1px solid #E3E6EA;border-radius:6px;padding:20px;margin-bottom:20px}
   h2{font-size:17px;margin:0 0 14px}
   label{display:block;font-size:13px;color:#6B7280;margin-bottom:4px}
   input{width:100%;box-sizing:border-box;font:inherit;padding:10px;border:1px solid #D1D5DB;border-radius:6px}
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;align-items:end}
   .btn{background:var(--blue);color:#fff;border:0;border-radius:6px;padding:11px 16px;font:inherit;font-weight:600;cursor:pointer}
+  .btn.copy{background:#fff;color:var(--blue);border:1px solid #BFDBFE;padding:6px 10px;font-weight:500}
+  .btn.card{background:#fff;color:#15803D;border:1px solid #BBF7D0;padding:6px 10px;font-weight:500}
   .btn.danger{background:#fff;color:#B91C1C;border:1px solid #FCA5A5;padding:6px 10px;font-weight:500}
   .btn:disabled{opacity:.5;cursor:default}
   .err{color:#B91C1C;font-size:14px;margin-top:10px}
@@ -36,7 +40,6 @@
   td.num{text-align:right} th.num{text-align:right}
   .tablewrap{overflow-x:auto}
   a.link{color:var(--blue)}
-  code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
   .hide{display:none}
 </style>
 </head>
@@ -70,7 +73,7 @@
         <div><label>Position</label><input id="aPos"></div>
         <div><label>Phone Number</label><input id="aPhone"></div>
         <div><label>Punch ID</label><input id="aId"></div>
-        <div><label>Department</label><input id="aDep"></div>
+        <div><label>Department</label><input id="aDept"></div>
         <div><button class="btn" id="addBtn" style="width:100%">Add</button></div>
       </div>
       <div id="addMsg"></div>
@@ -84,7 +87,7 @@
       </div>
       <div class="tablewrap">
         <table>
-          <thead><tr><th>Punch ID</th><th>Full Name</th><th>Position</th><th>Phone</th><th>Department</th><th>Code</th><th class="num">Scans</th><th class="num">Redeemed</th><th></th></tr></thead>
+          <thead><tr><th>Punch ID</th><th>Full Name</th><th>Position</th><th>Phone</th><th>Department</th><th class="num">Scans</th><th class="num">Redeemed</th><th>Link</th><th>Card</th><th></th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
       </div>
@@ -131,7 +134,7 @@ $("search").addEventListener("input", render);
 async function load(){
   $("listMsg").className=""; $("listMsg").textContent = "Loading…";
   try{
-    employees = (await api({action:"list"})).employees.map(e => ({...e, department: e.department || e.location || ""}));
+    employees = (await api({action:"list"})).employees;
     $("sEmp").textContent = employees.length;
     $("sScans").textContent = employees.reduce((a,e)=>a+e.scans,0);
     $("sRed").textContent = employees.reduce((a,e)=>a+e.redeemed,0);
@@ -142,16 +145,21 @@ async function load(){
 
 function render(){
   const q = $("search").value.trim().toLowerCase();
-  const list = employees.filter(e => !q || [e.name,e.id,e.position,e.department,e.phone,e.code].join(" ").toLowerCase().includes(q));
+  const list = employees.filter(e => !q || [e.name,e.id,e.position,e.department,e.phone].join(" ").toLowerCase().includes(q));
   $("rows").innerHTML = list.map(e => `
     <tr>
       <td>${esc(e.id)}</td>
       <td>${esc(e.name)}</td><td>${esc(e.position)}</td><td>${esc(e.phone)}</td><td>${esc(e.department)}</td>
-      <td>${e.code ? `<a class="link" href="/#${encodeURIComponent(e.code)}" target="_blank"><code>${esc(e.code)}</code></a>` : '<span style="color:#B91C1C">missing</span>'}</td>
       <td class="num">${e.scans}</td><td class="num">${e.redeemed}</td>
+      <td><a class="link" href="/#${esc(e.code)}" target="_blank">open</a> · <button class="btn copy" data-link="${location.origin}/#${esc(e.code)}">copy</button></td>
+      <td><button class="btn card" data-id="${esc(e.id)}">Card</button></td>
       <td><button class="btn danger" data-id="${esc(e.id)}" data-name="${esc(e.name)}">Remove</button></td>
-    </tr>`).join("") || `<tr><td colspan="9" style="color:#6B7280">No employees found.</td></tr>`;
-  $("rows").querySelectorAll("button").forEach(b => b.addEventListener("click", () => remove(b.dataset.id, b.dataset.name)));
+    </tr>`).join("") || `<tr><td colspan="10" style="color:#6B7280">No employees found.</td></tr>`;
+  $("rows").querySelectorAll("button.danger").forEach(b => b.addEventListener("click", () => remove(b.dataset.id, b.dataset.name)));
+  $("rows").querySelectorAll("button.card").forEach(b => b.addEventListener("click", () => makeCard(employees.find(e => e.id === b.dataset.id), b)));
+  $("rows").querySelectorAll("button.copy").forEach(b => b.addEventListener("click", async () => {
+    try{ await navigator.clipboard.writeText(b.dataset.link); b.textContent = "copied"; setTimeout(()=>b.textContent="copy",1200); }catch(e){ prompt("Copy link:", b.dataset.link); }
+  }));
 }
 
 async function remove(id, name){
@@ -161,18 +169,66 @@ async function remove(id, name){
 }
 
 $("addBtn").addEventListener("click", async () => {
-  const employee = {name:$("aName").value.trim(), position:$("aPos").value.trim(), phone:$("aPhone").value.trim(), id:$("aId").value.trim(), department:$("aDep").value.trim()};
+  const employee = {name:$("aName").value.trim(), position:$("aPos").value.trim(), phone:$("aPhone").value.trim(), id:$("aId").value.trim(), department:$("aDept").value.trim()};
   const m = $("addMsg"); m.className=""; m.textContent="";
   if(!employee.name || !employee.id){ m.className="err"; m.textContent="Full Name and Punch ID are required."; return; }
   $("addBtn").disabled = true;
   try{
     const d = await api({action:"add", employee});
-    ["aName","aPos","aPhone","aId","aDep"].forEach(i => $(i).value="");
-    m.className="ok"; m.textContent = `Added ${employee.name}. Link: ${location.origin}/#${d.code}`;
-    load();
+    ["aName","aPos","aPhone","aId","aDept"].forEach(i => $(i).value="");
+    m.className="ok"; m.textContent = `Added ${employee.name}. Generating card…`;
+    await load();
+    const added = employees.find(e => e.id === employee.id);
+    if(added){ await makeCard(added); m.textContent = `Added ${employee.name}. Card downloaded.`; }
   }catch(e){ m.className="err"; m.textContent = e.message; }
   $("addBtn").disabled = false;
 });
+
+// ---- card generator (browser-side, uses /card-template.png) ----
+const TEMPLATE = "/card-template.png";
+const BLUE = "#005EB8", NAVY = "#1B2A4A";
+function loadImg(src){ return new Promise((res, rej) => { const i = new Image(); i.crossOrigin = "anonymous"; i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
+function wrap(ctx, text, maxW){
+  const words = text.split(" "), lines = []; let line = "";
+  for(const w of words){ const t = line ? line + " " + w : w; if(ctx.measureText(t).width > maxW && line){ lines.push(line); line = w; } else line = t; }
+  if(line) lines.push(line); return lines;
+}
+async function makeCard(e, btn){
+  if(!e) return;
+  if(btn){ btn.disabled = true; btn.textContent = "…"; }
+  try{
+    await document.fonts.load("700 32px Outfit"); await document.fonts.load("400 22px Outfit");
+    const tpl = await loadImg(TEMPLATE);
+    const c = document.createElement("canvas"); c.width = tpl.width; c.height = tpl.height;
+    const ctx = c.getContext("2d"); ctx.drawImage(tpl, 0, 0);
+    // name (auto-shrink to fit)
+    let size = 32; ctx.fillStyle = BLUE; ctx.textBaseline = "alphabetic";
+    do { ctx.font = `700 ${size}px Outfit`; size -= 2; } while(ctx.measureText(e.name).width > 500 && size > 18);
+    ctx.fillText(e.name, 78, 252);
+    // position (wrap to 2 lines)
+    ctx.fillStyle = NAVY; ctx.font = "400 22px Outfit";
+    wrap(ctx, e.position || "", 480).slice(0, 2).forEach((l, i) => ctx.fillText(l, 78, 300 + i * 32));
+    // punch id
+    ctx.fillStyle = NAVY; ctx.font = "400 30px Outfit"; ctx.fillText(e.id, 768, 529);
+    // photo in circle
+    const cx = 768, cy = 260, r = 171;
+    let ph = null; try { ph = await loadImg(e.photo || "/photos/default.jpg"); } catch(x){ try { ph = await loadImg("/photos/default.jpg"); } catch(y){} }
+    if(ph){
+      ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.clip();
+      const s = Math.max(2*r/ph.width, 2*r/ph.height), w = ph.width*s, h = ph.height*s;
+      ctx.drawImage(ph, cx - w/2, cy - r - (h - 2*r)*0.3, w, h); ctx.restore();
+    }
+    // QR
+    const holder = document.createElement("div");
+    new QRCode(holder, { text: `${location.origin}/#${e.code || e.id}`, width: 408, height: 408, correctLevel: QRCode.CorrectLevel.M });
+    await new Promise(r => setTimeout(r, 50));
+    const qc = holder.querySelector("canvas") || holder.querySelector("img");
+    ctx.drawImage(qc, 73, 371, 204, 204);
+    // download
+    const a = document.createElement("a"); a.download = `${e.id}.png`; a.href = c.toDataURL("image/png"); a.click();
+  }catch(err){ alert("Could not generate card: " + err.message); }
+  if(btn){ btn.disabled = false; btn.textContent = "Card"; }
+}
 
 if(token){ showPanel(true); load(); } else showPanel(false);
 </script>
