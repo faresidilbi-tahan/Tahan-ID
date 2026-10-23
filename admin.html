@@ -5,114 +5,164 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Abed Tahan – ID Admin</title>
 <meta name="robots" content="noindex">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-  :root{--blue:rgb(0,94,184)}
-  body{margin:0;background:#F5F6F8;color:#1B1F24;font-family:"Outfit",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.5}
-  header{background:var(--blue);padding:10px 20px;display:flex;align-items:center;justify-content:space-between}
-  header img{height:52px;width:auto}
-  header button{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.6);border-radius:6px;padding:7px 12px;font:inherit;cursor:pointer}
-  .wrap{max-width:1000px;margin:0 auto;padding:24px 16px 60px}
-  .box{background:#fff;border:1px solid #E3E6EA;border-radius:6px;padding:20px;margin-bottom:20px}
-  h2{font-size:17px;margin:0 0 14px}
-  label{display:block;font-size:13px;color:#6B7280;margin-bottom:4px}
-  input{width:100%;box-sizing:border-box;font:inherit;padding:10px;border:1px solid #D1D5DB;border-radius:6px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;align-items:end}
-  .btn{background:var(--blue);color:#fff;border:0;border-radius:6px;padding:11px 16px;font:inherit;font-weight:600;cursor:pointer}
-  .btn.copy{background:#fff;color:var(--blue);border:1px solid #BFDBFE;padding:6px 10px;font-weight:500}
-  .btn.edit{background:#fff;color:#374151;border:1px solid #D1D5DB;padding:6px 10px;font-weight:500}
-  #editBox{border-color:var(--blue)}
-  .preview{width:72px;height:72px;border-radius:50%;object-fit:cover;background:#E5E7EB;display:block}
-  .btn.card{background:#fff;color:#15803D;border:1px solid #BBF7D0;padding:6px 10px;font-weight:500}
-  .btn.danger{background:#fff;color:#B91C1C;border:1px solid #FCA5A5;padding:6px 10px;font-weight:500}
-  .btn:disabled{opacity:.5;cursor:default}
-  .err{color:#B91C1C;font-size:14px;margin-top:10px}
-  .ok{color:#15803D;font-size:14px;margin-top:10px}
-  .login{max-width:360px;margin:60px auto}
-  .login input{margin-bottom:12px}
-  .stats{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px}
-  .stat{background:#fff;border:1px solid #E3E6EA;border-radius:6px;padding:14px 18px;min-width:140px}
-  .stat b{display:block;font-size:24px;color:var(--blue)}
-  .stat span{font-size:13px;color:#6B7280}
-  .tools{display:flex;gap:12px;margin-bottom:12px}
-  .tools input{max-width:320px}
+  :root{--blue:#005EB8;--blue-dark:#004A94;--ink:#1B1F24;--muted:#6B7280;--line:#E5E7EB;--page:#F6F7F9;--paper:#fff;--ok:#15803D;--err:#B91C1C;--r:4px;--max:1100px}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--page);color:var(--ink);font-family:"Outfit",system-ui,sans-serif;line-height:1.5;font-size:15px}
+  html[dir="rtl"] body{font-family:"Cairo","Outfit",system-ui,sans-serif}
+
+  header{background:var(--blue);color:#fff}
+  .bar{max-width:var(--max);margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .bar img{height:44px;width:auto;display:block}
+  .bar .right{display:flex;gap:8px}
+
+  .wrap{max-width:var(--max);margin:0 auto;padding:28px 20px 60px}
+
+  /* buttons: one height everywhere */
+  button{font-family:inherit;font-size:14px;font-weight:500;height:40px;padding:0 18px;border-radius:var(--r);border:1px solid transparent;cursor:pointer;white-space:nowrap;transition:background .12s,border-color .12s}
+  button:disabled{opacity:.5;cursor:default}
+  button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+  .btn{background:var(--blue);color:#fff}
+  .btn:hover{background:var(--blue-dark)}
+  .btn.ghost{background:var(--paper);color:var(--ink);border-color:var(--line)}
+  .btn.ghost:hover{border-color:#9CA3AF}
+  .btn.danger{background:var(--paper);color:var(--err);border-color:#FECACA}
+  .btn.danger:hover{background:#FEF2F2}
+  .btn.white{background:transparent;color:#fff;border-color:rgba(255,255,255,.5)}
+  .btn.white:hover{background:rgba(255,255,255,.12)}
+  .btn.sm{height:32px;padding:0 12px;font-size:13px;min-width:72px}
+
+  /* inputs */
+  label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+  input{width:100%;height:40px;font:inherit;font-size:14px;padding:0 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--paper);color:var(--ink)}
+  input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,94,184,.12)}
+  input[type=file]{padding:8px 12px;line-height:1}
+
+  /* sections */
+  .panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);margin-bottom:20px}
+  .panel-h{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .panel-h h2{font-size:16px;font-weight:600;margin:0}
+  .panel-h span{color:var(--muted);font-weight:400;font-size:14px}
+  .panel-b{padding:20px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px 16px;align-items:end}
+  .note{font-size:14px;margin-top:12px;min-height:20px}
+  .note.ok{color:var(--ok)} .note.err{color:var(--err)}
+
+  /* stats: one strip, dividers not cards */
+  .stats{display:flex;background:var(--paper);border:1px solid var(--line);border-radius:var(--r);margin-bottom:20px}
+  .stat{flex:1;padding:16px 20px;border-inline-start:1px solid var(--line)}
+  .stat:first-child{border-inline-start:0}
+  .stat b{display:block;font-size:26px;font-weight:600;color:var(--blue);line-height:1.1}
+  .stat span{font-size:13px;color:var(--muted)}
+
+  /* login */
+  .login{max-width:380px;margin:60px auto}
+  .login .panel-b>*{margin-bottom:14px}
+  .login .panel-b>*:last-child{margin-bottom:0}
+
+  /* table */
+  .tools{display:flex;gap:10px;margin-bottom:14px}
+  .tools input{max-width:360px}
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r)}
   table{width:100%;border-collapse:collapse;font-size:14px}
-  th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #E3E6EA;white-space:nowrap}
-  th{color:#6B7280;font-weight:600}
-  td.num{text-align:right} th.num{text-align:right}
-  .tablewrap{overflow-x:auto}
-  a.link{color:var(--blue)}
-  .hide{display:none}
+  th,td{text-align:start;padding:11px 12px;border-bottom:1px solid var(--line);white-space:nowrap;vertical-align:middle}
+  th{background:#FAFAFB;color:var(--muted);font-weight:500;font-size:13px;position:sticky;top:0}
+  tr:last-child td{border-bottom:0}
+  tbody tr:hover td{background:#FAFCFF}
+  td.num,th.num{text-align:end}
+  td.actions{display:flex;gap:6px}
+  a.link{color:var(--blue);text-decoration:none}
+  a.link:hover{text-decoration:underline}
+  .preview{width:72px;height:72px;border-radius:50%;object-fit:cover;background:var(--line);display:block}
+  .hide{display:none!important}
+  @media (max-width:640px){.stat b{font-size:22px}.bar img{height:36px}}
 </style>
 </head>
 <body>
 <header>
-  <img src="https://abedtahan.com/cdn/shop/files/AT_Logo_400x200_Transparent.png?v=1732612010&width=250" alt="Abed Tahan">
-  <button id="logoutBtn" class="hide">Log out</button>
+  <div class="bar">
+    <img src="https://abedtahan.com/cdn/shop/files/AT_Logo_400x200_Transparent.png?v=1732612010&width=250" alt="Abed Tahan">
+    <div class="right">
+      <button class="btn white" id="langBtn">عربي</button>
+      <button class="btn white hide" id="logoutBtn" data-i="logout">Log out</button>
+    </div>
+  </div>
 </header>
 
 <div class="wrap">
 
-  <div class="box login" id="loginBox">
-    <h2>Employee ID admin</h2>
-    <label>Username</label><input id="user" autocomplete="username">
-    <label>Password</label><input id="pass" type="password" autocomplete="current-password">
-    <button class="btn" id="loginBtn" style="width:100%">Log in</button>
-    <div class="err" id="loginErr"></div>
+  <div class="panel login" id="loginBox">
+    <div class="panel-h"><h2 data-i="loginTitle">Employee ID admin</h2></div>
+    <div class="panel-b">
+      <div><label data-i="username">Username</label><input id="user" autocomplete="username"></div>
+      <div><label data-i="password">Password</label><input id="pass" type="password" autocomplete="current-password"></div>
+      <button class="btn" id="loginBtn" style="width:100%" data-i="login">Log in</button>
+      <div class="note err" id="loginErr"></div>
+    </div>
   </div>
 
   <div id="panel" class="hide">
     <div class="stats">
-      <div class="stat"><b id="sEmp">–</b><span>Employees</span></div>
-      <div class="stat"><b id="sScans">–</b><span>Total scans</span></div>
-      <div class="stat"><b id="sRed">–</b><span>Discounts redeemed</span></div>
+      <div class="stat"><b id="sEmp">–</b><span data-i="employees">Employees</span></div>
+      <div class="stat"><b id="sScans">–</b><span data-i="scans">Total scans</span></div>
+      <div class="stat"><b id="sRed">–</b><span data-i="redeemed">Discounts redeemed</span></div>
     </div>
 
-    <div class="box">
-      <h2>Add employee</h2>
-      <div class="grid">
-        <div><label>Full Name</label><input id="aName"></div>
-        <div><label>Position</label><input id="aPos"></div>
-        <div><label>Phone Number</label><input id="aPhone"></div>
-        <div><label>Punch ID</label><input id="aId"></div>
-        <div><label>Department</label><input id="aDept"></div>
-        <div><label>Photo (optional)</label><input type="file" id="aFile" accept="image/*"></div>
-        <div><button class="btn" id="addBtn" style="width:100%">Add</button></div>
+    <div class="panel">
+      <div class="panel-h"><h2 data-i="addTitle">Add employee</h2></div>
+      <div class="panel-b">
+        <div class="grid">
+          <div><label data-i="name">Full Name</label><input id="aName"></div>
+          <div><label data-i="position">Position</label><input id="aPos"></div>
+          <div><label data-i="phone">Phone Number</label><input id="aPhone"></div>
+          <div><label data-i="punch">Punch ID</label><input id="aId"></div>
+          <div><label data-i="department">Department</label><input id="aDept"></div>
+          <div><label data-i="photoOpt">Photo (optional)</label><input type="file" id="aFile" accept="image/*"></div>
+          <div><button class="btn" id="addBtn" style="width:100%" data-i="add">Add employee</button></div>
+        </div>
+        <div class="note" id="addMsg"></div>
       </div>
-      <div id="addMsg"></div>
     </div>
 
-    <div class="box hide" id="editBox">
-      <h2>Edit employee <span id="eTitle" style="color:#6B7280;font-weight:400"></span></h2>
-      <div class="grid">
-        <div><label>Full Name</label><input id="eName"></div>
-        <div><label>Position</label><input id="ePos"></div>
-        <div><label>Phone Number</label><input id="ePhone"></div>
-        <div><label>Department</label><input id="eDept"></div>
-        <div><label>Photo URL</label><input id="ePhoto" placeholder="https://…/photos/name.jpg"></div>
-        <div><label>Upload new photo</label><input type="file" id="eFile" accept="image/*"></div>
-        <div><img class="preview" id="ePreview" alt=""></div>
-        <div><button class="btn" id="saveBtn" style="width:100%">Save</button></div>
-        <div><button class="btn edit" id="cancelBtn" style="width:100%">Cancel</button></div>
+    <div class="panel hide" id="editBox">
+      <div class="panel-h"><h2><span data-i="editTitle">Edit employee</span> <span id="eTitle"></span></h2></div>
+      <div class="panel-b">
+        <div class="grid">
+          <div><label data-i="name">Full Name</label><input id="eName"></div>
+          <div><label data-i="position">Position</label><input id="ePos"></div>
+          <div><label data-i="phone">Phone Number</label><input id="ePhone"></div>
+          <div><label data-i="department">Department</label><input id="eDept"></div>
+          <div><label data-i="photoUrl">Photo URL</label><input id="ePhoto" placeholder="https://…/photos/name.jpg"></div>
+          <div><label data-i="uploadPhoto">Upload new photo</label><input type="file" id="eFile" accept="image/*"></div>
+          <div><img class="preview" id="ePreview" alt=""></div>
+          <div><button class="btn" id="saveBtn" style="width:100%" data-i="save">Save changes</button></div>
+          <div><button class="btn ghost" id="cancelBtn" style="width:100%" data-i="cancel">Cancel</button></div>
+        </div>
+        <div class="note" id="editMsg"></div>
       </div>
-      <div id="editMsg"></div>
     </div>
 
-    <div class="box">
-      <h2>Employees</h2>
-      <div class="tools">
-        <input id="search" placeholder="Search name, ID, department…">
-        <button class="btn" id="refreshBtn">Refresh</button>
+    <div class="panel">
+      <div class="panel-h"><h2 data-i="listTitle">Employees</h2></div>
+      <div class="panel-b">
+        <div class="tools">
+          <input id="search" data-ph="search" placeholder="Search name, ID, department…">
+          <button class="btn ghost" id="refreshBtn" data-i="refresh">Refresh</button>
+        </div>
+        <div class="tablewrap">
+          <table>
+            <thead><tr>
+              <th data-i="punch">Punch ID</th><th data-i="name">Full Name</th><th data-i="position">Position</th><th data-i="phone">Phone</th><th data-i="department">Department</th>
+              <th class="num" data-i="scansCol">Scans</th><th class="num" data-i="redeemedCol">Redeemed</th><th data-i="link">Link</th><th></th>
+            </tr></thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+        <div class="note" id="listMsg"></div>
       </div>
-      <div class="tablewrap">
-        <table>
-          <thead><tr><th>Punch ID</th><th>Full Name</th><th>Position</th><th>Phone</th><th>Department</th><th class="num">Scans</th><th class="num">Redeemed</th><th>Link</th><th>Card</th><th></th><th></th></tr></thead>
-          <tbody id="rows"></tbody>
-        </table>
-      </div>
-      <div id="listMsg"></div>
     </div>
   </div>
 </div>
@@ -123,19 +173,48 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;
 let token = sessionStorage.getItem("token") || "";
 let employees = [];
 
+// ---- language ----
+const I18N = {
+  en:{toggle:"عربي",logout:"Log out",loginTitle:"Employee ID admin",username:"Username",password:"Password",login:"Log in",
+      employees:"Employees",scans:"Total scans",redeemed:"Discounts redeemed",addTitle:"Add employee",name:"Full Name",position:"Position",
+      phone:"Phone Number",punch:"Punch ID",department:"Department",photoOpt:"Photo (optional)",add:"Add employee",editTitle:"Edit employee",
+      photoUrl:"Photo URL",uploadPhoto:"Upload new photo",save:"Save changes",cancel:"Cancel",listTitle:"Employees",search:"Search name, ID, department…",
+      refresh:"Refresh",scansCol:"Scans",redeemedCol:"Redeemed",link:"Link",open:"Open",copy:"Copy",copied:"Copied",card:"Card",edit:"Edit",remove:"Remove",
+      loading:"Loading…",none:"No employees found.",required:"Full Name and Punch ID are required.",added:"Added {n}. Generating card…",
+      addedCard:"Added {n}. Card downloaded.",uploading:"Uploading photo…",saving:"Saving…",saved:"Saved.",
+      savedPhoto:"Saved. The new photo appears on the site in about a minute.",confirmRemove:"Remove {n} ({id})? Their QR code will stop working.",
+      expired:"Session expired, please log in again.",cardFail:"Could not generate card: "},
+  ar:{toggle:"English",logout:"تسجيل الخروج",loginTitle:"إدارة بطاقات الموظفين",username:"اسم المستخدم",password:"كلمة المرور",login:"تسجيل الدخول",
+      employees:"الموظفون",scans:"إجمالي المسح",redeemed:"الحسومات المستخدمة",addTitle:"إضافة موظف",name:"الاسم الكامل",position:"المنصب",
+      phone:"رقم الهاتف",punch:"رقم الموظف",department:"القسم",photoOpt:"الصورة (اختياري)",add:"إضافة موظف",editTitle:"تعديل موظف",
+      photoUrl:"رابط الصورة",uploadPhoto:"رفع صورة جديدة",save:"حفظ التغييرات",cancel:"إلغاء",listTitle:"الموظفون",search:"ابحث بالاسم أو الرقم أو القسم…",
+      refresh:"تحديث",scansCol:"المسح",redeemedCol:"الحسومات",link:"الرابط",open:"فتح",copy:"نسخ",copied:"تم النسخ",card:"البطاقة",edit:"تعديل",remove:"حذف",
+      loading:"جارٍ التحميل…",none:"لا يوجد موظفون.",required:"الاسم الكامل ورقم الموظف مطلوبان.",added:"تمت إضافة {n}. جارٍ إنشاء البطاقة…",
+      addedCard:"تمت إضافة {n}. تم تنزيل البطاقة.",uploading:"جارٍ رفع الصورة…",saving:"جارٍ الحفظ…",saved:"تم الحفظ.",
+      savedPhoto:"تم الحفظ. ستظهر الصورة الجديدة على الموقع خلال دقيقة تقريباً.",confirmRemove:"حذف {n} ({id})؟ سيتوقف رمز QR الخاص به عن العمل.",
+      expired:"انتهت الجلسة، يرجى تسجيل الدخول مجدداً.",cardFail:"تعذّر إنشاء البطاقة: "}
+};
+let lang = localStorage.getItem("lang") || "en", T = I18N[lang];
+const t = (k, v = {}) => Object.entries(v).reduce((s, [a, b]) => s.replace("{" + a + "}", b), T[k] || k);
+function applyLang(){
+  T = I18N[lang];
+  document.documentElement.lang = lang; document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+  document.querySelectorAll("[data-i]").forEach(el => el.textContent = T[el.dataset.i]);
+  document.querySelectorAll("[data-ph]").forEach(el => el.placeholder = T[el.dataset.ph]);
+  $("langBtn").textContent = T.toggle;
+  if(employees.length) render();
+}
+$("langBtn").addEventListener("click", () => { lang = lang === "en" ? "ar" : "en"; localStorage.setItem("lang", lang); applyLang(); });
+
+// ---- api ----
 async function api(body){
   const r = await fetch("/api/admin", {method:"POST", headers:{"Content-Type":"application/json", "Authorization":"Bearer "+token}, body:JSON.stringify(body)});
   const d = await r.json();
-  if(r.status === 401 && body.action !== "login"){ logout(); throw new Error("Session expired, please log in again."); }
+  if(r.status === 401 && body.action !== "login"){ logout(); throw new Error(t("expired")); }
   if(!r.ok || d.error) throw new Error(d.error || "Request failed");
   return d;
 }
-
-function showPanel(on){
-  $("loginBox").classList.toggle("hide", on);
-  $("panel").classList.toggle("hide", !on);
-  $("logoutBtn").classList.toggle("hide", !on);
-}
+function showPanel(on){ $("loginBox").classList.toggle("hide", on); $("panel").classList.toggle("hide", !on); $("logoutBtn").classList.toggle("hide", !on); }
 function logout(){ token=""; sessionStorage.removeItem("token"); showPanel(false); }
 
 $("loginBtn").addEventListener("click", async () => {
@@ -153,7 +232,7 @@ $("refreshBtn").addEventListener("click", load);
 $("search").addEventListener("input", render);
 
 async function load(){
-  $("listMsg").className=""; $("listMsg").textContent = "Loading…";
+  $("listMsg").className="note"; $("listMsg").textContent = t("loading");
   try{
     employees = (await api({action:"list"})).employees;
     $("sEmp").textContent = employees.length;
@@ -161,7 +240,7 @@ async function load(){
     $("sRed").textContent = employees.reduce((a,e)=>a+e.redeemed,0);
     $("listMsg").textContent = "";
     render();
-  }catch(e){ $("listMsg").className="err"; $("listMsg").textContent = e.message; }
+  }catch(e){ $("listMsg").className="note err"; $("listMsg").textContent = e.message; }
 }
 
 function render(){
@@ -169,43 +248,46 @@ function render(){
   const list = employees.filter(e => !q || [e.name,e.id,e.position,e.department,e.phone].join(" ").toLowerCase().includes(q));
   $("rows").innerHTML = list.map(e => `
     <tr>
-      <td>${esc(e.id)}</td>
-      <td>${esc(e.name)}</td><td>${esc(e.position)}</td><td>${esc(e.phone)}</td><td>${esc(e.department)}</td>
+      <td>${esc(e.id)}</td><td>${esc(e.name)}</td><td>${esc(e.position)}</td><td>${esc(e.phone)}</td><td>${esc(e.department)}</td>
       <td class="num">${e.scans}</td><td class="num">${e.redeemed}</td>
-      <td><a class="link" href="/#${esc(e.code)}" target="_blank">open</a> · <button class="btn copy" data-link="${location.origin}/#${esc(e.code)}">copy</button></td>
-      <td><button class="btn card" data-id="${esc(e.id)}">Card</button></td>
-      <td><button class="btn edit" data-id="${esc(e.id)}">Edit</button></td>
-      <td><button class="btn danger" data-id="${esc(e.id)}" data-name="${esc(e.name)}">Remove</button></td>
-    </tr>`).join("") || `<tr><td colspan="11" style="color:#6B7280">No employees found.</td></tr>`;
+      <td><a class="link" href="/#${esc(e.code || e.id)}" target="_blank">${t("open")}</a></td>
+      <td class="actions">
+        <button class="btn ghost sm copy" data-link="${location.origin}/#${esc(e.code || e.id)}">${t("copy")}</button>
+        <button class="btn ghost sm card" data-id="${esc(e.id)}">${t("card")}</button>
+        <button class="btn ghost sm edit" data-id="${esc(e.id)}">${t("edit")}</button>
+        <button class="btn danger sm danger" data-id="${esc(e.id)}" data-name="${esc(e.name)}">${t("remove")}</button>
+      </td>
+    </tr>`).join("") || `<tr><td colspan="9" style="color:var(--muted)">${t("none")}</td></tr>`;
   $("rows").querySelectorAll("button.danger").forEach(b => b.addEventListener("click", () => remove(b.dataset.id, b.dataset.name)));
   $("rows").querySelectorAll("button.edit").forEach(b => b.addEventListener("click", () => openEdit(employees.find(e => e.id === b.dataset.id))));
   $("rows").querySelectorAll("button.card").forEach(b => b.addEventListener("click", () => makeCard(employees.find(e => e.id === b.dataset.id), b)));
   $("rows").querySelectorAll("button.copy").forEach(b => b.addEventListener("click", async () => {
-    try{ await navigator.clipboard.writeText(b.dataset.link); b.textContent = "copied"; setTimeout(()=>b.textContent="copy",1200); }catch(e){ prompt("Copy link:", b.dataset.link); }
+    try{ await navigator.clipboard.writeText(b.dataset.link); b.textContent = t("copied"); setTimeout(()=>b.textContent=t("copy"),1200); }catch(e){ prompt("Copy link:", b.dataset.link); }
   }));
 }
 
 async function remove(id, name){
-  if(!confirm(`Remove ${name} (${id})? Their QR will stop working.`)) return;
+  if(!confirm(t("confirmRemove", {n:name, id}))) return;
   try{ await api({action:"remove", id}); load(); }
-  catch(e){ $("listMsg").className="err"; $("listMsg").textContent = e.message; }
+  catch(e){ $("listMsg").className="note err"; $("listMsg").textContent = e.message; }
 }
 
+// ---- add ----
 $("addBtn").addEventListener("click", async () => {
   const employee = {name:$("aName").value.trim(), position:$("aPos").value.trim(), phone:$("aPhone").value.trim(), id:$("aId").value.trim(), department:$("aDept").value.trim()};
-  const m = $("addMsg"); m.className=""; m.textContent="";
-  if(!employee.name || !employee.id){ m.className="err"; m.textContent="Full Name and Punch ID are required."; return; }
+  const m = $("addMsg"); m.className="note"; m.textContent="";
+  if(!employee.name || !employee.id){ m.className="note err"; m.textContent=t("required"); return; }
   $("addBtn").disabled = true;
   try{
-    const d = await api({action:"add", employee});
+    await api({action:"add", employee});
     const f = $("aFile").files[0];
-    if(f){ m.textContent = "Uploading photo…"; const image = await fileToJpeg(f); await api({ action:"upload", id: employee.id, image }); }
-    ["aName","aPos","aPhone","aId","aDept","aFile"].forEach(i => $(i).value=""); $("aFile").value="";
-    m.className="ok"; m.textContent = `Added ${employee.name}. Generating card…`;
+    if(f){ m.textContent = t("uploading"); const image = await fileToJpeg(f); await api({ action:"upload", id: employee.id, image }); }
+    ["aName","aPos","aPhone","aId","aDept","aFile"].forEach(i => $(i).value="");
+    m.className="note ok"; m.textContent = t("added", {n: employee.name});
     await load();
     const added = employees.find(e => e.id === employee.id);
-    if(added){ if(f) added.photo = URL.createObjectURL(f); await makeCard(added); m.textContent = `Added ${employee.name}. Card downloaded.`; }
-  }catch(e){ m.className="err"; m.textContent = e.message; }
+    if(added){ if(f) added.photo = URL.createObjectURL(f); await makeCard(added); m.textContent = t("addedCard", {n: employee.name}); }
+  }catch(e){ m.className="note err"; m.textContent = e.message; }
   $("addBtn").disabled = false;
 });
 
@@ -217,12 +299,11 @@ function openEdit(e){
   $("eName").value = e.name || ""; $("ePos").value = e.position || ""; $("ePhone").value = e.phone || "";
   $("eDept").value = e.department || ""; $("ePhoto").value = e.photo || ""; $("eFile").value = "";
   $("ePreview").src = e.photo || "/photos/default.jpg";
-  $("editMsg").className = ""; $("editMsg").textContent = "";
+  $("editMsg").className = "note"; $("editMsg").textContent = "";
   $("editBox").classList.remove("hide"); $("editBox").scrollIntoView({behavior:"smooth"});
 }
 $("cancelBtn").addEventListener("click", () => { $("editBox").classList.add("hide"); editing = null; });
 $("eFile").addEventListener("change", () => { const f = $("eFile").files[0]; if(f) $("ePreview").src = URL.createObjectURL(f); });
-// resize to 600px square JPEG, return base64 without prefix
 function fileToJpeg(file){
   return new Promise((res, rej) => {
     const img = new Image(); img.onload = () => {
@@ -235,30 +316,24 @@ function fileToJpeg(file){
 }
 $("saveBtn").addEventListener("click", async () => {
   if(!editing) return;
-  const m = $("editMsg"); m.className = ""; m.textContent = "Saving…"; $("saveBtn").disabled = true;
+  const m = $("editMsg"); m.className = "note"; m.textContent = t("saving"); $("saveBtn").disabled = true;
   try{
     const fields = { name:$("eName").value.trim(), position:$("ePos").value.trim(), phone:$("ePhone").value.trim(), department:$("eDept").value.trim(), photo:$("ePhoto").value.trim() };
     const f = $("eFile").files[0];
-    if(f){
-      m.textContent = "Uploading photo…";
-      const image = await fileToJpeg(f);
-      const r = await api({ action:"upload", id: editing.id, image });
-      fields.photo = r.url;
-    }
+    if(f){ m.textContent = t("uploading"); const image = await fileToJpeg(f); const r = await api({ action:"upload", id: editing.id, image }); fields.photo = r.url; }
     await api({ action:"update", id: editing.id, fields });
-    m.className = "ok"; m.textContent = f ? "Saved. The new photo appears on the site in about a minute (after Vercel redeploys)." : "Saved.";
+    m.className = "note ok"; m.textContent = f ? t("savedPhoto") : t("saved");
     await load();
-  }catch(e){ m.className = "err"; m.textContent = e.message; }
+  }catch(e){ m.className = "note err"; m.textContent = e.message; }
   $("saveBtn").disabled = false;
 });
 
-// ---- card generator (browser-side, uses /card-template.png) ----
-const TEMPLATE = "/card-template.png";
-const BLUE = "#005EB8", NAVY = "#1B2A4A";
+// ---- card generator (uses /card-template.png) ----
+const TEMPLATE = "/card-template.png", BLUE = "#005EB8", NAVY = "#1B2A4A";
 function loadImg(src){ return new Promise((res, rej) => { const i = new Image(); i.crossOrigin = "anonymous"; i.onload = () => res(i); i.onerror = () => rej(new Error("could not load " + src)); i.src = src; }); }
 function wrap(ctx, text, maxW){
   const words = text.split(" "), lines = []; let line = "";
-  for(const w of words){ const t = line ? line + " " + w : w; if(ctx.measureText(t).width > maxW && line){ lines.push(line); line = w; } else line = t; }
+  for(const w of words){ const tt = line ? line + " " + w : w; if(ctx.measureText(tt).width > maxW && line){ lines.push(line); line = w; } else line = tt; }
   if(line) lines.push(line); return lines;
 }
 async function makeCard(e, btn){
@@ -269,16 +344,12 @@ async function makeCard(e, btn){
     const tpl = await loadImg(TEMPLATE);
     const c = document.createElement("canvas"); c.width = tpl.width; c.height = tpl.height;
     const ctx = c.getContext("2d"); ctx.drawImage(tpl, 0, 0);
-    // name (auto-shrink to fit)
     let size = 32; ctx.fillStyle = BLUE; ctx.textBaseline = "alphabetic";
     do { ctx.font = `700 ${size}px Outfit`; size -= 2; } while(ctx.measureText(e.name).width > 500 && size > 18);
     ctx.fillText(e.name, 78, 252);
-    // position (wrap to 2 lines)
     ctx.fillStyle = NAVY; ctx.font = "400 22px Outfit";
     wrap(ctx, e.position || "", 480).slice(0, 2).forEach((l, i) => ctx.fillText(l, 78, 300 + i * 32));
-    // punch id
     ctx.fillStyle = NAVY; ctx.font = "400 30px Outfit"; ctx.fillText(e.id, 768, 529);
-    // photo in circle
     const cx = 768, cy = 260, r = 171;
     let ph = null; try { ph = await loadImg(e.photo || "/photos/default.jpg"); } catch(x){ try { ph = await loadImg("/photos/default.jpg"); } catch(y){} }
     if(ph){
@@ -286,21 +357,19 @@ async function makeCard(e, btn){
       const s = Math.max(2*r/ph.width, 2*r/ph.height), w = ph.width*s, h = ph.height*s;
       ctx.drawImage(ph, cx - w/2, cy - r - (h - 2*r)*0.3, w, h); ctx.restore();
     }
-    // QR
     const holder = document.createElement("div");
     new QRCode(holder, { text: `${location.origin}/#${e.code || e.id}`, width: 408, height: 408, correctLevel: QRCode.CorrectLevel.M });
     await new Promise(r => setTimeout(r, 50));
     const qc = holder.querySelector("canvas") || holder.querySelector("img");
     ctx.drawImage(qc, 73, 371, 204, 204);
-    // download
-    // PDF at standard ID-card size (85.6 x 54 mm)
     const pdf = new jspdf.jsPDF({ orientation: "landscape", unit: "mm", format: [85.6, 54] });
     pdf.addImage(c.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, 85.6, 54);
     pdf.save(`${e.id}.pdf`);
-  }catch(err){ alert("Could not generate card: " + err.message); }
-  if(btn){ btn.disabled = false; btn.textContent = "Card"; }
+  }catch(err){ alert(t("cardFail") + err.message); }
+  if(btn){ btn.disabled = false; btn.textContent = t("card"); }
 }
 
+applyLang();
 if(token){ showPanel(true); load(); } else showPanel(false);
 </script>
 </body>
