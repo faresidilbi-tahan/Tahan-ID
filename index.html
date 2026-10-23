@@ -5,20 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Abed Tahan – Employee</title>
 <meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{--blue:rgb(0,94,184)}
-  body{margin:0;background:#fff;color:#1B1F24;font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.5}
+  body{margin:0;background:#fff;color:#1B1F24;font-family:"Poppins",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.5}
   header{background:var(--blue);padding:10px 20px;text-align:center}
   header img{height:65px;width:auto;display:inline-block}
   .wrap{max-width:420px;margin:0 auto;padding:32px 20px}
-  .confirm{display:flex;align-items:center;gap:10px;background:var(--blue);color:#fff;border-radius:6px;padding:12px 14px;margin-bottom:24px;font-size:15px;font-weight:500}
+  .confirm{display:flex;align-items:center;gap:10px;background:rgba(0,94,184,.08);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(0,94,184,.25);box-shadow:0 4px 16px rgba(0,94,184,.10);color:#000;border-radius:6px;padding:12px 14px;margin-bottom:24px;font-size:15px;font-weight:500}
   .confirm svg{width:20px;height:20px;flex:none}
   .photo{width:120px;height:120px;border-radius:50%;object-fit:cover;display:block;margin:0 0 18px;border:3px solid var(--blue)}
   h1{font-size:22px;margin:0 0 20px}
   dl{margin:0;display:grid;grid-template-columns:120px 1fr;gap:10px 16px;font-size:16px}
   dt{color:#6B7280} dd{margin:0;font-weight:500;overflow-wrap:anywhere}
   .msg{color:#6B7280;font-size:16px}
-  .redeem{display:block;width:100%;margin-top:28px;background:var(--blue);color:#fff;border:0;border-radius:6px;padding:14px;font:inherit;font-size:16px;font-weight:600;cursor:pointer}
+  .redeem{display:block;width:100%;margin-top:28px;background:var(--blue);color:#fff;border:0;border-radius:6px;padding:14px;font-family:inherit;font-size:16px;font-weight:600;cursor:pointer}
   .redeem:disabled{background:#9CA3AF;cursor:default}
   .done{margin-top:12px;color:#15803D;font-size:15px;font-weight:500;text-align:center}
 </style>
@@ -43,7 +45,7 @@ async function load(){
     if(!res.ok) throw 0;
     const e = await res.json();
     app.innerHTML = `
-      <div class="confirm">${CHECK}<span>Verified: this person is a current Abed Tahan employee.</span></div>
+      <div class="confirm"><span>Verified: this person is a current Abed Tahan employee.</span></div>
       <img class="photo" src="${esc(e.photo || '/photos/default.jpg')}" alt="" onerror="this.onerror=null;this.src='/photos/default.jpg'">
       <h1>${esc(e.name)}</h1>
       <dl>
