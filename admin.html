@@ -7,6 +7,7 @@
 <meta name="robots" content="noindex">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   :root{--blue:rgb(0,94,184)}
   body{margin:0;background:#F5F6F8;color:#1B1F24;font-family:"Outfit",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.5}
@@ -225,7 +226,10 @@ async function makeCard(e, btn){
     const qc = holder.querySelector("canvas") || holder.querySelector("img");
     ctx.drawImage(qc, 73, 371, 204, 204);
     // download
-    const a = document.createElement("a"); a.download = `${e.id}.png`; a.href = c.toDataURL("image/png"); a.click();
+    // PDF at standard ID-card size (85.6 x 54 mm)
+    const pdf = new jspdf.jsPDF({ orientation: "landscape", unit: "mm", format: [85.6, 54] });
+    pdf.addImage(c.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, 85.6, 54);
+    pdf.save(`${e.id}.pdf`);
   }catch(err){ alert("Could not generate card: " + err.message); }
   if(btn){ btn.disabled = false; btn.textContent = "Card"; }
 }
