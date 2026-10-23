@@ -1,6 +1,6 @@
-// GET /api/employee?code=abc123 — looks up the employee by code and counts the scan
+// GET /api/employee?id=abc123  (also accepts ?code=) — looks up the employee by code and counts the scan
 module.exports = async (req, res) => {
-  const code = String(req.query.code || "").trim();
+  const code = String(req.query.id || req.query.code || "").trim();
   if (!code) return res.status(400).json({ error: "Missing code" });
   try {
     const r = await fetch(process.env.APPS_SCRIPT_URL, {
