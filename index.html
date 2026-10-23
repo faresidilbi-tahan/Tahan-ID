@@ -13,7 +13,6 @@
   .wrap{max-width:420px;margin:0 auto;padding:32px 20px}
   .confirm{display:flex;align-items:center;gap:10px;background:var(--blue);color:#fff;border-radius:6px;padding:12px 14px;margin-bottom:24px;font-size:15px;font-weight:500}
   .confirm svg{width:20px;height:20px;flex:none}
-  .photo{width:120px;height:120px;border-radius:50%;object-fit:cover;display:block;margin:0 0 18px;border:3px solid var(--blue)}
   h1{font-size:22px;margin:0 0 20px}
   dl{margin:0;display:grid;grid-template-columns:120px 1fr;gap:10px 16px;font-size:16px}
   dt{color:#6B7280} dd{margin:0;font-weight:500;overflow-wrap:anywhere}
@@ -44,7 +43,6 @@ async function load(){
     const e = await res.json();
     app.innerHTML = `
       <div class="confirm">${CHECK}<span>Verified: this person is a current Abed Tahan employee.</span></div>
-      <img class="photo" id="photo" alt="">
       <h1>${esc(e.name)}</h1>
       <dl>
         ${row("Position", e.position)}
@@ -55,15 +53,7 @@ async function load(){
       <button class="redeem" id="redeemBtn">Redeem discount</button>
       <div class="done" id="done"></div>`;
     document.getElementById("redeemBtn").addEventListener("click", redeem);
-    loadPhoto(e);
   }catch(e){ app.innerHTML = '<p class="msg">Could not load employee data. Please try again.</p>'; }
-}
-
-// Photo by Punch ID, falls back to default.jpg
-function loadPhoto(e){
-  const img = document.getElementById("photo");
-  img.onerror = () => { img.onerror = () => img.remove(); img.src = "/photos/default.jpg"; };
-  img.src = "/photos/" + encodeURIComponent(e.id) + ".jpg";
 }
 
 async function redeem(){
