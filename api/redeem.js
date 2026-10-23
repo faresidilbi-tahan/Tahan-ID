@@ -7,7 +7,7 @@ module.exports = async (req, res) => {
     const r = await fetch(process.env.APPS_SCRIPT_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "redeem", id, secret: process.env.APPS_SCRIPT_SECRET })
+      body: JSON.stringify({ action: "redeem", id, code: id, secret: process.env.APPS_SCRIPT_SECRET })
     });
     const data = await r.json();
     if (data.error) throw new Error(data.error);
