@@ -77,7 +77,7 @@ async function load(){
         ${row(T.punch, e.id)}
         ${row(T.department, e.department)}
       </dl>
-      <button class="redeem" id="redeemBtn">${T.redeem}</button>
+
       <div class="done" id="done"></div>`;
     document.getElementById("redeemBtn").addEventListener("click", redeem);
   }catch(e){ app.innerHTML = `<p class="msg">${T.error}</p>`; }
