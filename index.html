@@ -8,30 +8,33 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{--blue:rgb(0,94,184)}
-  body{margin:0;background:#fff;color:#1B1F24;font-family:"Outfit",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.5}
+  :root{--blue:rgb(0,94,184);--bg:#fff;--ink:#1B1F24;--muted:#6B7280;--line:#F0F0F0;--box:whitesmoke;--ok:#15803D}
+  html[data-theme="dark"]{--blue:#2F7FD6;--bg:#111418;--ink:#E6E8EC;--muted:#9AA3AF;--line:#2A2F36;--box:#1E2329;--ok:#4ADE80;color-scheme:dark}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Outfit",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.5}
   header{background:var(--blue);padding:10px 20px;display:flex;align-items:center;justify-content:center;position:relative}
   .lang{position:absolute;right:16px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.45);border-radius:4px;padding:6px 12px;font-family:inherit;font-size:14px;cursor:pointer}
+  .theme{position:absolute;right:92px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.45);border-radius:4px;padding:6px 10px;font-family:inherit;font-size:14px;cursor:pointer}
   html[dir="rtl"] .lang{right:auto;left:16px}
+  html[dir="rtl"] .theme{right:auto;left:92px}
   html[dir="rtl"] body{font-family:"Cairo","Outfit",sans-serif}
   header img{height:65px;width:auto;display:inline-block}
   .wrap{max-width:420px;margin:0 auto;padding:32px 20px}
-  .confirm{display:flex;align-items:center;gap:10px;background:whitesmoke;backdrop-filter:blur(12px);border:1px solid whitesmoke;color:#000;border-radius:4px;padding:12px 14px;margin-bottom:24px;font-size:15px;font-weight:500}
+  .confirm{display:flex;align-items:center;gap:10px;background:var(--box);backdrop-filter:blur(12px);border:1px solid var(--box);color:var(--ink);border-radius:4px;padding:12px 14px;margin-bottom:24px;font-size:15px;font-weight:500}
   .confirm svg{width:20px;height:20px;flex:none}
   .photo{width:120px;height:120px;border-radius:50%;object-fit:cover;display:block;margin:0 0 18px;border:3px solid var(--blue)}
   h1{font-size:24px;font-weight:600;letter-spacing:-.01em;margin:0 0 20px}
   dl{margin:0;display:grid;grid-template-columns:120px 1fr;gap:0 16px;font-size:16px}
-  dt,dd{padding:10px 0;border-bottom:1px solid #F0F0F0}
-  dt{color:#6B7280;font-weight:400} dd{margin:0;font-weight:500;overflow-wrap:anywhere}
-  .msg{color:#6B7280;font-size:16px}
+  dt,dd{padding:10px 0;border-bottom:1px solid var(--line)}
+  dt{color:var(--muted);font-weight:400} dd{margin:0;font-weight:500;overflow-wrap:anywhere}
+  .msg{color:var(--muted);font-size:16px}
   .redeem{display:block;width:100%;margin-top:28px;background:var(--blue);color:#fff;border:0;border-radius:4px;padding:10px 14px;font-family:inherit;font-size:16px;font-weight:400;cursor:pointer;transition:background .15s}
   .redeem:hover{background:#004a94}
   .redeem:disabled{background:#9CA3AF;cursor:default}
-  .done{margin-top:12px;color:#15803D;font-size:15px;font-weight:500;text-align:center}
+  .done{margin-top:12px;color:var(--ok);font-size:15px;font-weight:500;text-align:center}
 </style>
 </head>
 <body>
-<header><img src="https://abedtahan.com/cdn/shop/files/AT_Logo_400x200_Transparent.png?v=1732612010&width=250" alt="Abed Tahan"><button class="lang" id="langBtn">عربي</button></header>
+<header><img src="https://abedtahan.com/cdn/shop/files/AT_Logo_400x200_Transparent.png?v=1732612010&width=250" alt="Abed Tahan"><button class="theme" id="themeBtn" title="Theme">☾</button><button class="lang" id="langBtn">عربي</button></header>
 <div class="wrap" id="app"><p class="msg">Loading…</p></div>
 
 <script>
@@ -39,6 +42,10 @@ const app = document.getElementById("app");
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const row = (label, v) => v ? `<dt>${label}</dt><dd>${esc(v)}</dd>` : "";
 let currentCode = "";
+let theme = localStorage.getItem("theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+function applyTheme(){ document.documentElement.dataset.theme = theme; document.getElementById("themeBtn").textContent = theme === "dark" ? "☀" : "☾"; }
+document.getElementById("themeBtn").addEventListener("click", () => { theme = theme === "dark" ? "light" : "dark"; localStorage.setItem("theme", theme); applyTheme(); });
+applyTheme();
 const I18N = {
   en:{verified:"Verified: this person is a current Abed Tahan employee.",position:"Position",phone:"Phone",punch:"Punch ID",department:"Department",
       redeem:"Redeem discount",redeeming:"Redeeming…",redeemed:"Discount redeemed",recorded:"Recorded. Thank you!",fail:"Could not record. Please try again.",
@@ -77,7 +84,7 @@ async function load(){
         ${row(T.punch, e.id)}
         ${row(T.department, e.department)}
       </dl>
-
+      <button class="redeem" id="redeemBtn">${T.redeem}</button>
       <div class="done" id="done"></div>`;
     document.getElementById("redeemBtn").addEventListener("click", redeem);
   }catch(e){ app.innerHTML = `<p class="msg">${T.error}</p>`; }
