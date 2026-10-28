@@ -9,7 +9,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-  :root{--blue:#005EB8;--blue-dark:#004A94;--ink:#1B1F24;--muted:#6B7280;--line:#E5E7EB;--page:#F6F7F9;--paper:#fff;--ok:#15803D;--err:#B91C1C;--r:4px;--max:1100px}
+  :root{--blue:#005EB8;--blue-dark:#004A94;--ink:#1B1F24;--muted:#6B7280;--line:#E5E7EB;--page:#F6F7F9;--paper:#fff;--soft:#FAFAFB;--hover:#FAFCFF;--open:#F3F8FD;--detail:#F9FBFD;--danger-bg:#FEF2F2;--ok:#15803D;--err:#B91C1C;--r:4px;--max:1100px}
   *{box-sizing:border-box}
   body{margin:0;background:var(--page);color:var(--ink);font-family:"Outfit",system-ui,sans-serif;line-height:1.5;font-size:15px}
   html[dir="rtl"] body{font-family:"Cairo","Outfit",system-ui,sans-serif}
@@ -28,9 +28,9 @@
   .btn{background:var(--blue);color:#fff}
   .btn:hover{background:var(--blue-dark)}
   .btn.ghost{background:var(--paper);color:var(--ink);border-color:var(--line)}
-  .btn.ghost:hover{border-color:#9CA3AF}
+  .btn.ghost:hover{border-color:var(--muted)}
   .btn.danger{background:var(--paper);color:var(--err);border-color:#FECACA}
-  .btn.danger:hover{background:#FEF2F2}
+  .btn.danger:hover{background:var(--danger-bg)}
   .btn.white{background:transparent;color:#fff;border-color:rgba(255,255,255,.5)}
   .btn.white:hover{background:rgba(255,255,255,.12)}
   .btn.sm{height:30px;padding:0 8px;font-size:12px;min-width:58px}
@@ -69,14 +69,13 @@
   .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r)}
   table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
   th,td{text-align:start;padding:8px 8px;border-bottom:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
-  col.c-thumb{width:48px} col.c-id{width:70px} col.c-name{width:24%} col.c-pos{width:28%} col.c-phone{width:110px} col.c-dept{width:20%}
-  col.c-num{width:80px}
-  th{background:#FAFAFB;color:var(--muted);font-weight:500;font-size:13px;position:sticky;top:0}
+  col.c-thumb{width:48px} col.c-id{width:70px} col.c-name{width:26%} col.c-pos{width:32%} col.c-phone{width:120px} col.c-dept{width:22%}
+  th{background:var(--soft);color:var(--muted);font-weight:500;font-size:13px;position:sticky;top:0}
   th[data-sort]{cursor:pointer;user-select:none}
   th[data-sort]:hover{color:var(--ink)}
   th[data-sort].asc::after{content:" ▲";font-size:9px} th[data-sort].desc::after{content:" ▼";font-size:9px}
   tr:last-child td{border-bottom:0}
-  tbody tr:hover td{background:#FAFCFF}
+  tbody tr:hover td{background:var(--hover)}
   td.num,th.num{text-align:end}
   td.actions{display:flex;gap:4px;overflow:visible}
   a.link{color:var(--blue);text-decoration:none}
@@ -84,8 +83,8 @@
   .thumb{width:36px;height:36px;border-radius:50%;object-fit:cover;background:var(--line);display:block}
   td.thumbcell{width:48px;padding-top:6px;padding-bottom:6px}
   tr.main{cursor:pointer}
-  tr.main.open td{background:#F3F8FD}
-  tr.detail td{background:#F9FBFD;padding:12px 12px 14px;white-space:normal}
+  tr.main.open td{background:var(--open)}
+  tr.detail td{background:var(--detail);padding:12px 12px 14px;white-space:normal}
   .detail-in{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
   .detail-in .lnk{color:var(--muted);font-size:13px;margin-inline-end:auto;overflow-wrap:anywhere}
   .detail-in .lnk a{color:var(--blue);text-decoration:none}
@@ -121,8 +120,6 @@
   <div id="panel" class="hide">
     <div class="stats">
       <div class="stat"><b id="sEmp">–</b><span data-i="employees">Employees</span></div>
-      <div class="stat"><b id="sScans">–</b><span data-i="scans">Total scans</span></div>
-      <div class="stat"><b id="sRed">–</b><span data-i="redeemed">Discounts redeemed</span></div>
     </div>
 
     <div class="panel">
@@ -183,10 +180,9 @@
         </div>
         <div class="tablewrap">
           <table>
-            <colgroup><col class="c-thumb"><col class="c-id"><col class="c-name"><col class="c-pos"><col class="c-phone"><col class="c-dept"><col class="c-num"><col class="c-num"></colgroup>
+            <colgroup><col class="c-thumb"><col class="c-id"><col class="c-name"><col class="c-pos"><col class="c-phone"><col class="c-dept"></colgroup>
             <thead><tr>
               <th></th><th data-sort="id" data-i="idCol">ID</th><th data-sort="name" data-i="name">Full Name</th><th data-sort="position" data-i="position">Position</th><th data-sort="phone" data-i="phoneCol">Phone</th><th data-sort="department" data-i="department">Department</th>
-              <th class="num" data-sort="scans" data-i="scansCol">Scans</th><th class="num" data-sort="redeemed" data-i="redeemedCol">Redeemed</th>
             </tr></thead>
             <tbody id="rows"></tbody>
           </table>
@@ -270,8 +266,6 @@ async function load(){
   try{
     employees = (await api({action:"list"})).employees;
     $("sEmp").textContent = employees.length;
-    $("sScans").textContent = employees.reduce((a,e)=>a+e.scans,0);
-    $("sRed").textContent = employees.reduce((a,e)=>a+e.redeemed,0);
     $("listMsg").textContent = "";
     render();
   }catch(e){ $("listMsg").className="note err"; $("listMsg").textContent = e.message; }
@@ -289,7 +283,7 @@ function render(){
   const q = $("search").value.trim().toLowerCase();
   let list = employees.filter(e => !q || [e.name,e.id,e.position,e.department,e.phone].join(" ").toLowerCase().includes(q));
   if(sortKey){
-    const numeric = ["id","scans","redeemed"].includes(sortKey);
+    const numeric = sortKey === "id";
     list = [...list].sort((a,b) => {
       const va = a[sortKey] ?? "", vb = b[sortKey] ?? "";
       const c = numeric ? (Number(va)||0) - (Number(vb)||0) : String(va).localeCompare(String(vb), undefined, {sensitivity:"base"});
@@ -300,15 +294,14 @@ function render(){
     <tr class="main${openId===e.id?" open":""}" data-id="${esc(e.id)}">
       <td class="thumbcell"><img class="thumb" src="${esc(e.photo || '/photos/default.jpg')}" alt="" loading="lazy" onerror="this.onerror=null;this.src='/photos/default.jpg'"></td>
       <td>${esc(e.id)}</td><td title="${esc(e.name)}">${esc(e.name)}</td><td title="${esc(e.position)}">${esc(e.position)}</td><td>${esc(e.phone)}</td><td title="${esc(e.department)}">${esc(e.department)}</td>
-      <td class="num">${e.scans}</td><td class="num">${e.redeemed}</td>
     </tr>
-    ${openId===e.id ? `<tr class="detail"><td colspan="8"><div class="detail-in">
+    ${openId===e.id ? `<tr class="detail"><td colspan="6"><div class="detail-in">
       <span class="lnk"><a href="/#${esc(e.code || e.id)}" target="_blank">${location.origin}/#${esc(e.code || e.id)}</a></span>
       <button class="btn ghost sm copy" data-link="${location.origin}/#${esc(e.code || e.id)}">${t("copy")}</button>
       <button class="btn ghost sm card" data-id="${esc(e.id)}">${t("card")}</button>
       <button class="btn ghost sm edit" data-id="${esc(e.id)}">${t("edit")}</button>
       <button class="btn danger sm danger" data-id="${esc(e.id)}" data-name="${esc(e.name)}">${t("remove")}</button>
-    </div></td></tr>` : ""}`).join("") || `<tr><td colspan="8" style="color:var(--muted)">${t("none")}</td></tr>`;
+    </div></td></tr>` : ""}`).join("") || `<tr><td colspan="6" style="color:var(--muted)">${t("none")}</td></tr>`;
   $("rows").querySelectorAll("tr.main").forEach(r => r.addEventListener("click", () => { openId = openId === r.dataset.id ? "" : r.dataset.id; render(); }));
   $("rows").querySelectorAll("button.danger").forEach(b => b.addEventListener("click", () => remove(b.dataset.id, b.dataset.name)));
   $("rows").querySelectorAll("button.edit").forEach(b => b.addEventListener("click", () => openEdit(employees.find(e => e.id === b.dataset.id))));
@@ -327,7 +320,7 @@ function downloadCsv(name, rows){
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click();
 }
 $("exportBtn").addEventListener("click", () => {
-  downloadCsv("employees.csv", [[...CSV_HEAD,"Link","Scans","Redeemed"], ...employees.map(e => [e.name,e.position,e.phone,e.id,e.department,e.photo||"",`${location.origin}/#${e.code||e.id}`,e.scans,e.redeemed])]);
+  downloadCsv("employees.csv", [[...CSV_HEAD,"Link"], ...employees.map(e => [e.name,e.position,e.phone,e.id,e.department,e.photo||"",`${location.origin}/#${e.code||e.id}`])]);
 });
 $("sampleBtn").addEventListener("click", () => {
   downloadCsv("employees-sample.csv", [CSV_HEAD, ["Jad Khoury","Sales Executive","71-123456","2400","Mazraa Branch",""], ["Rana Saad","Cashier","03-654321","2401","Rabieh Branch",""]]);
