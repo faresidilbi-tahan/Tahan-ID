@@ -5,17 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Abed Tahan – Employee Discounts</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{--blue:rgb(0,94,184);--ink:#1B1F24;--muted:#6B7280;--line:#E5E7EB;--soft:#F6F7F9;--r:4px}
   *{box-sizing:border-box}
+  html[dir="rtl"] body{font-family:"Cairo","Outfit",sans-serif}
   body{margin:0;background:#fff;color:var(--ink);font-family:"Outfit",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.5}
   header{background:var(--blue);padding:10px 20px;display:flex;align-items:center;justify-content:center;position:relative}
-  header img{height:65px;width:auto;display:block}
   .hbtn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.45);border-radius:4px;padding:6px 12px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;text-decoration:none;white-space:nowrap}
   .hbtn:hover{background:rgba(255,255,255,.25)}
-  .offers{left:16px}
+  .offers{left:16px} .lang{right:16px}
+  html[dir="rtl"] .offers{left:auto;right:16px} html[dir="rtl"] .lang{right:auto;left:16px}
   @media (max-width:420px){header img{height:48px}.hbtn{padding:5px 9px;font-size:13px}}
+  header img{height:65px;width:auto;display:inline-block}
   .wrap{max-width:720px;margin:0 auto;padding:28px 20px 60px}
   h1{font-size:24px;font-weight:600;letter-spacing:-.01em;margin:0 0 6px}
   .lead{color:var(--muted);margin:0 0 24px;font-size:15px}
@@ -24,8 +26,8 @@
   .offer{border:1px solid var(--line);border-radius:var(--r);margin-bottom:12px;overflow:hidden}
   .top{display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;user-select:none;background:#fff}
   .top:hover{background:var(--soft)}
-  .logo{flex:none;width:48px;height:48px;border-radius:var(--r);border:1px solid var(--line);background:#fff;object-fit:contain;padding:4px}
-  .logo.ph{display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:600;font-size:16px}
+  .logo{flex:none;width:70px;height:70px;border-radius:var(--r);background:#fff;object-fit:contain}
+  .logo.ph{display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:600;font-size:18px;border:1px solid var(--line)}
   .ttl{flex:1;min-width:0}
   .offer h2{font-size:17px;font-weight:600;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .offer .cat{color:var(--muted);font-size:13px;margin-top:1px}
@@ -44,14 +46,14 @@
 </style>
 </head>
 <body>
-<header><img src="https://abedtahan.com/cdn/shop/files/AT_Logo_400x200_Transparent.png?v=1732612010&width=250" alt="Abed Tahan"><a class="hbtn offers" href="/offers.html">Check Offers</a></header>
+<header><img src="https://abedtahan.com/cdn/shop/files/AT_Logo_400x200_Transparent.png?v=1732612010&width=250" alt="Abed Tahan"><a class="hbtn offers" id="offersBtn" href="/offers.html">Check Offers</a><button class="hbtn lang" id="langBtn">عربي</button></header>
 
 <div class="wrap">
-  <h1>Employee discounts</h1>
-  <p class="lead">Exclusive offers for Abed Tahan employees. Show your Abed Tahan Digital ID unless stated otherwise.</p>
+  <h1 id="tTitle">Employee discounts</h1>
+  <p class="lead" id="tLead">Exclusive offers for Abed Tahan employees. Show your Abed Tahan Digital ID unless stated otherwise.</p>
   <input class="search" id="search" type="search" placeholder="Search by company or category…">
   <div id="list"></div>
-  <p class="foot">Offers are provided by partner companies and may change without notice.</p>
+  <p class="foot" id="tFoot">Offers are provided by partner companies and may change without notice.</p>
 </div>
 
 <script>
@@ -90,6 +92,21 @@ const OFFERS = [
   }
 ];
 
+const I18N = {
+  en:{toggle:"عربي",offers:"Check Offers",title:"Employee discounts",lead:"Exclusive offers for Abed Tahan employees. Show your Abed Tahan Digital ID unless stated otherwise.",
+      search:"Search by company or category…",foot:"Offers are provided by partner companies and may change without notice.",download:"Download details (PDF)",none:"No offers match your search."},
+  ar:{toggle:"English",offers:"العروض",title:"حسومات الموظفين",lead:"عروض حصرية لموظفي عبد طحان. أبرز بطاقة الموظف الرقمية ما لم يُذكر خلاف ذلك.",
+      search:"ابحث باسم الشركة أو الفئة…",foot:"العروض مقدمة من شركات شريكة وقد تتغير دون إشعار مسبق.",download:"تنزيل التفاصيل (PDF)",none:"لا توجد عروض مطابقة لبحثك."}
+};
+let lang = localStorage.getItem("lang") || "en", T = I18N[lang];
+function applyLang(){
+  T = I18N[lang]; document.documentElement.lang = lang; document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+  document.getElementById("langBtn").textContent = T.toggle; document.getElementById("offersBtn").textContent = T.offers;
+  document.getElementById("tTitle").textContent = T.title; document.getElementById("tLead").textContent = T.lead;
+  document.getElementById("search").placeholder = T.search; document.getElementById("tFoot").textContent = T.foot;
+}
+document.getElementById("langBtn").addEventListener("click", () => { lang = lang === "en" ? "ar" : "en"; localStorage.setItem("lang", lang); applyLang(); render(); });
+
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const list = (arr) => arr && arr.length ? `<ul>${arr.map(i => `<li>${esc(i)}</li>`).join("")}</ul>` : "";
 const CHEV = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
@@ -110,13 +127,13 @@ function render(){
         <p>${esc(o.details || "")}</p>
         ${list(o.items)}${list(o.branches)}
         ${o.note ? `<p>${esc(o.note)}</p>` : ""}
-        ${o.doc ? `<a class="doc" href="${esc(o.doc)}" download>Download details (PDF)</a>` : ""}
+        ${o.doc ? `<a class="doc" href="${esc(o.doc)}" download>${T.download}</a>` : ""}
       </div>
-    </section>`).join("") || `<p class="empty">No offers match your search.</p>`;
+    </section>`).join("") || `<p class="empty">${T.none}</p>`;
   listEl.querySelectorAll(".top").forEach(t => t.addEventListener("click", () => { const i = +t.parentElement.dataset.i; openIdx = openIdx === i ? -1 : i; render(); }));
 }
 searchEl.addEventListener("input", render);
-render();
+applyLang(); render();
 </script>
 </body>
 </html>
