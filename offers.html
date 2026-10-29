@@ -29,9 +29,9 @@
   .logo{flex:none;width:70px;height:70px;border-radius:var(--r);background:#fff;object-fit:contain}
   .logo.ph{display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:600;font-size:18px;border:1px solid var(--line)}
   .ttl{flex:1;min-width:0}
-  .offer h2{font-size:17px;font-weight:600;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .offer .cat{color:var(--muted);font-size:13px;margin-top:1px}
-  .badge{flex:none;background:var(--blue);color:#fff;font-weight:600;font-size:14px;padding:5px 10px;border-radius:var(--r);white-space:nowrap}
+  .offer h2{font-size:17px;font-weight:600;margin:0;line-height:1.25}
+  .offer .cat{color:var(--muted);font-size:13px;margin-top:2px}
+  .badge{display:inline-block;margin-top:6px;background:rgba(0,94,184,.10);color:var(--blue);font-weight:600;font-size:13px;padding:3px 8px;border-radius:var(--r);white-space:nowrap}
   .chev{flex:none;width:18px;height:18px;color:var(--muted);transition:transform .15s}
   .offer.open .chev{transform:rotate(180deg)}
   .body{display:none;padding:0 16px 16px;border-top:1px solid var(--line)}
@@ -62,33 +62,44 @@
 const OFFERS = [
   {
     logo: "/Tires.webp",
-    name: "Tires and More",
-    category: "Tires, auto services",
-    discount: "25% off",
+    name: "Tires and More", name_ar: "Tires and More",
+    category: "Tires, auto services", category_ar: "إطارات وخدمات سيارات",
+    discount: "25% off", discount_ar: "حسم 25%",
     details: "25% discount on a wide range of products and services, available at all Tires and More branches.",
+    details_ar: "حسم 25% على مجموعة واسعة من المنتجات والخدمات في جميع فروع Tires and More.",
     doc: "/employee%20offer%2025%25.pdf"
   },
   {
     logo: "/Sp%C3%BCntino.jpeg",
-    name: "Spüntino Restaurant",
-    category: "Restaurant",
-    discount: "10% off",
+    name: "Spüntino Restaurant", name_ar: "مطعم Spüntino",
+    category: "Restaurant", category_ar: "مطعم",
+    discount: "10% off", discount_ar: "حسم 10%",
     details: "10% discount on dine-in only, at the following branches:",
+    details_ar: "حسم 10% على الطعام داخل المطعم فقط، في الفروع التالية:",
     branches: ["Verdun", "Khaldeh", "Saida"],
+    branches_ar: ["فردان", "خلدة", "صيدا"]
   },
   {
     logo: "/Mazen.jpeg",
-    name: "Mazen Pharmacy",
-    category: "Pharmacy",
-    discount: "Up to 25% off",
+    name: "Mazen Pharmacy", name_ar: "صيدلية مازن",
+    category: "Pharmacy", category_ar: "صيدلية",
+    discount: "Up to 25% off", discount_ar: "حسم حتى 25%",
     details: "Discounts by product type:",
+    details_ar: "الحسومات حسب نوع المنتج:",
     items: [
       "Medicines: 5% on items priced below $100",
       "Personal care products (shampoo, body wash, deodorant, etc.): 5%",
       "Dermo-cosmetics: 20% to 25%",
       "Vitamins: 10%"
     ],
-    note: "Discount is applied by giving your mobile number."
+    items_ar: [
+      "الأدوية: 5% على المنتجات التي يقل سعرها عن 100 دولار",
+      "منتجات العناية الشخصية (شامبو، غسول جسم، مزيل عرق، إلخ): 5%",
+      "مستحضرات التجميل الطبية: 20% إلى 25%",
+      "الفيتامينات: 10%"
+    ],
+    note: "Discount is applied by giving your mobile number.",
+    note_ar: "يُطبّق الحسم عند إعطاء رقم هاتفك."
   }
 ];
 
@@ -111,22 +122,23 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;
 const list = (arr) => arr && arr.length ? `<ul>${arr.map(i => `<li>${esc(i)}</li>`).join("")}</ul>` : "";
 const CHEV = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
 const initials = n => n.split(/\s+/).map(w => w[0]).filter(Boolean).slice(0,2).join("").toUpperCase();
+const F = (o, k) => (lang === "ar" && o[k + "_ar"] !== undefined) ? o[k + "_ar"] : o[k];
 const listEl = document.getElementById("list"), searchEl = document.getElementById("search");
 let openIdx = -1;
 function render(){
   const q = searchEl.value.trim().toLowerCase();
-  const rows = OFFERS.map((o, i) => ({o, i})).filter(({o}) => !q || [o.name, o.category, o.discount, o.details, ...(o.items||[]), ...(o.branches||[])].join(" ").toLowerCase().includes(q));
+  const rows = OFFERS.map((o, i) => ({o, i})).filter(({o}) => !q || [o.name, o.name_ar, o.category, o.category_ar, o.discount, o.details, ...(o.items||[]), ...(o.items_ar||[]), ...(o.branches||[]), ...(o.branches_ar||[])].join(" ").toLowerCase().includes(q));
   listEl.innerHTML = rows.map(({o, i}) => `
     <section class="offer${openIdx===i?" open":""}" data-i="${i}">
       <div class="top">
         ${o.logo ? `<img class="logo" src="${esc(o.logo)}" alt="">` : `<div class="logo ph">${esc(initials(o.name))}</div>`}
-        <div class="ttl"><h2>${esc(o.name)}</h2><div class="cat">${esc(o.category || "")}</div></div>
-        <div class="badge">${esc(o.discount)}</div>${CHEV}
+        <div class="ttl"><h2>${esc(F(o,"name"))}</h2><div class="cat">${esc(F(o,"category") || "")}</div><div class="badge">${esc(F(o,"discount"))}</div></div>
+        ${CHEV}
       </div>
       <div class="body">
-        <p>${esc(o.details || "")}</p>
-        ${list(o.items)}${list(o.branches)}
-        ${o.note ? `<p>${esc(o.note)}</p>` : ""}
+        <p>${esc(F(o,"details") || "")}</p>
+        ${list(F(o,"items"))}${list(F(o,"branches"))}
+        ${F(o,"note") ? `<p>${esc(F(o,"note"))}</p>` : ""}
         ${o.doc ? `<a class="doc" href="${esc(o.doc)}" download>${T.download}</a>` : ""}
       </div>
     </section>`).join("") || `<p class="empty">${T.none}</p>`;
