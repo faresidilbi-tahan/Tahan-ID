@@ -10,8 +10,12 @@
   :root{--blue:rgb(0,94,184);--ink:#1B1F24;--muted:#6B7280;--line:#E5E7EB;--soft:#F6F7F9;--r:4px}
   *{box-sizing:border-box}
   body{margin:0;background:#fff;color:var(--ink);font-family:"Outfit",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.5}
-  header{background:var(--blue);padding:10px 20px;text-align:center}
-  header img{height:65px;width:auto;display:inline-block}
+  header{background:var(--blue);padding:10px 20px;display:flex;align-items:center;justify-content:center;position:relative}
+  header img{height:65px;width:auto;display:block}
+  .hbtn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.45);border-radius:4px;padding:6px 12px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;text-decoration:none;white-space:nowrap}
+  .hbtn:hover{background:rgba(255,255,255,.25)}
+  .offers{left:16px}
+  @media (max-width:420px){header img{height:48px}.hbtn{padding:5px 9px;font-size:13px}}
   .wrap{max-width:720px;margin:0 auto;padding:28px 20px 60px}
   h1{font-size:24px;font-weight:600;letter-spacing:-.01em;margin:0 0 6px}
   .lead{color:var(--muted);margin:0 0 24px;font-size:15px}
@@ -31,7 +35,7 @@
 </style>
 </head>
 <body>
-<header><img src="https://abedtahan.com/cdn/shop/files/AT_Logo_400x200_Transparent.png?v=1732612010&width=250" alt="Abed Tahan"></header>
+<header><img src="https://abedtahan.com/cdn/shop/files/AT_Logo_400x200_Transparent.png?v=1732612010&width=250" alt="Abed Tahan"><a class="hbtn offers" href="/offers.html">Check Offers</a></header>
 
 <div class="wrap">
   <h1>Employee discounts</h1>
