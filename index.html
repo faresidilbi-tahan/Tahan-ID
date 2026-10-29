@@ -11,8 +11,11 @@
   :root{--blue:rgb(0,94,184);--bg:#fff;--ink:#1B1F24;--muted:#6B7280;--line:#F0F0F0;--box:whitesmoke;--ok:#15803D}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:"Outfit",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.5}
   header{background:var(--blue);padding:10px 20px;display:flex;align-items:center;justify-content:center;position:relative}
-  .lang{position:absolute;right:16px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.45);border-radius:4px;padding:6px 12px;font-family:inherit;font-size:14px;cursor:pointer}
-  html[dir="rtl"] .lang{right:auto;left:16px}
+  .hbtn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.45);border-radius:4px;padding:6px 12px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;text-decoration:none;white-space:nowrap}
+  .hbtn:hover{background:rgba(255,255,255,.25)}
+  .offers{left:16px} .lang{right:16px}
+  html[dir="rtl"] .offers{left:auto;right:16px} html[dir="rtl"] .lang{right:auto;left:16px}
+  @media (max-width:420px){header img{height:48px}.hbtn{padding:5px 9px;font-size:13px}}
   html[dir="rtl"] body{font-family:"Cairo","Outfit",sans-serif}
   header img{height:65px;width:auto;display:inline-block}
   .wrap{max-width:420px;margin:0 auto;padding:32px 20px}
@@ -27,7 +30,7 @@
 </style>
 </head>
 <body>
-<header><img src="https://abedtahan.com/cdn/shop/files/AT_Logo_400x200_Transparent.png?v=1732612010&width=250" alt="Abed Tahan"><button class="lang" id="langBtn">عربي</button></header>
+<header><img src="https://abedtahan.com/cdn/shop/files/AT_Logo_400x200_Transparent.png?v=1732612010&width=250" alt="Abed Tahan"><a class="hbtn offers" id="offersBtn" href="/offers.html">Check Offers</a><button class="hbtn lang" id="langBtn">عربي</button></header>
 <div class="wrap" id="app"><p class="msg">Loading…</p></div>
 
 <script>
@@ -37,9 +40,9 @@ const row = (label, v) => v ? `<dt>${label}</dt><dd>${esc(v)}</dd>` : "";
 let currentCode = "";
 const I18N = {
   en:{verified:"Verified: this person is a current Abed Tahan employee.",position:"Position",phone:"Phone",punch:"Punch ID",department:"Department",
-      invalid:"Invalid link.",notfound:"No employee found for this link.",error:"Could not load employee data. Please try again.",loading:"Loading…",toggle:"عربي"},
+      invalid:"Invalid link.",notfound:"No employee found for this link.",error:"Could not load employee data. Please try again.",loading:"Loading…",toggle:"عربي",offers:"Check Offers"},
   ar:{verified:"تم التحقق: هذا الشخص موظف حالي في عبد طحان.",position:"المنصب",phone:"الهاتف",punch:"رقم الموظف",department:"القسم",
-      invalid:"الرابط غير صالح.",notfound:"لم يتم العثور على موظف لهذا الرابط.",error:"تعذّر تحميل بيانات الموظف. حاول مرة أخرى.",loading:"جارٍ التحميل…",toggle:"English"}
+      invalid:"الرابط غير صالح.",notfound:"لم يتم العثور على موظف لهذا الرابط.",error:"تعذّر تحميل بيانات الموظف. حاول مرة أخرى.",loading:"جارٍ التحميل…",toggle:"English",offers:"العروض"}
 };
 let lang = localStorage.getItem("lang") || "en";
 let T = I18N[lang];
@@ -48,6 +51,7 @@ function applyLang(){
   document.documentElement.lang = lang;
   document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
   document.getElementById("langBtn").textContent = T.toggle;
+  document.getElementById("offersBtn").textContent = T.offers;
 }
 document.getElementById("langBtn").addEventListener("click", () => { lang = lang === "en" ? "ar" : "en"; localStorage.setItem("lang", lang); applyLang(); load(); });
 applyLang();
