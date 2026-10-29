@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Abed Tahan – Employee Discounts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--blue:rgb(0,94,184);--ink:#1B1F24;--muted:#6B7280;--line:#E5E7EB;--soft:#F6F7F9;--r:4px}
+  *{box-sizing:border-box}
+  body{margin:0;background:#fff;color:var(--ink);font-family:"Outfit",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.5}
+  header{background:var(--blue);padding:10px 20px;text-align:center}
+  header img{height:65px;width:auto;display:inline-block}
+  .wrap{max-width:720px;margin:0 auto;padding:28px 20px 60px}
+  h1{font-size:24px;font-weight:600;letter-spacing:-.01em;margin:0 0 6px}
+  .lead{color:var(--muted);margin:0 0 24px;font-size:15px}
+  .offer{border:1px solid var(--line);border-radius:var(--r);padding:20px;margin-bottom:16px}
+  .top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px}
+  .offer h2{font-size:18px;font-weight:600;margin:0}
+  .offer .cat{color:var(--muted);font-size:13px;margin-top:2px}
+  .badge{flex:none;background:var(--blue);color:#fff;font-weight:600;font-size:15px;padding:6px 12px;border-radius:var(--r);white-space:nowrap}
+  .offer p{margin:10px 0 0;font-size:15px}
+  .offer ul{margin:8px 0 0;padding-inline-start:20px;font-size:15px}
+  .offer li{margin:2px 0}
+  .how{margin-top:14px;padding:12px 14px;background:var(--soft);border-radius:var(--r);font-size:14px}
+  .how b{font-weight:600}
+  .doc{display:inline-block;margin-top:12px;color:var(--blue);font-weight:500;text-decoration:none;font-size:14px}
+  .doc:hover{text-decoration:underline}
+  .foot{color:var(--muted);font-size:13px;margin-top:28px;text-align:center}
+</style>
+</head>
+<body>
+<header><img src="https://abedtahan.com/cdn/shop/files/AT_Logo_400x200_Transparent.png?v=1732612010&width=250" alt="Abed Tahan"></header>
+
+<div class="wrap">
+  <h1>Employee discounts</h1>
+  <p class="lead">Exclusive offers for Abed Tahan employees. Show your Abed Tahan Digital ID unless stated otherwise.</p>
+  <div id="list"></div>
+  <p class="foot">Offers are provided by partner companies and may change without notice. Questions: hr@abedtahan.com</p>
+</div>
+
+<script>
+// Add a new partner by adding an object here. Fields: name, category, discount, details (text), items (list), branches (list), how (text), doc (link, optional)
+const OFFERS = [
+  {
+    name: "Tires and More",
+    category: "Tires, auto services",
+    discount: "25% off",
+    details: "25% discount on a wide range of products and services, available at all Tires and More branches.",
+    how: "Present your Abed Tahan Digital ID at any branch.",
+    doc: "/employee%20offer%2025%25.pdf"
+  },
+  {
+    name: "Spüntino Restaurant",
+    category: "Restaurant",
+    discount: "10% off",
+    details: "10% discount on dine-in only, at the following branches:",
+    branches: ["Verdun", "Khaldeh", "Saida"],
+    how: "Present your Abed Tahan Digital ID when dining in."
+  },
+  {
+    name: "Mazen Pharmacy",
+    category: "Pharmacy",
+    discount: "Up to 25% off",
+    details: "Discounts by product type:",
+    items: [
+      "Medicines: 5% on items priced below $100",
+      "Personal care products (shampoo, body wash, deodorant, etc.): 5%",
+      "Dermo-cosmetics: 20% to 25%",
+      "Vitamins: 10%"
+    ],
+    how: "Give your mobile number at the counter. No Digital ID needed."
+  }
+];
+
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const list = (arr) => arr && arr.length ? `<ul>${arr.map(i => `<li>${esc(i)}</li>`).join("")}</ul>` : "";
+document.getElementById("list").innerHTML = OFFERS.map(o => `
+  <section class="offer">
+    <div class="top">
+      <div><h2>${esc(o.name)}</h2><div class="cat">${esc(o.category || "")}</div></div>
+      <div class="badge">${esc(o.discount)}</div>
+    </div>
+    <p>${esc(o.details || "")}</p>
+    ${list(o.items)}${list(o.branches)}
+    <div class="how"><b>How to redeem:</b> ${esc(o.how)}</div>
+    ${o.doc ? `<a class="doc" href="${esc(o.doc)}" download>Download details (PDF)</a>` : ""}
+  </section>`).join("");
+</script>
+</body>
+</html>
