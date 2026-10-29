@@ -19,19 +19,28 @@
   .wrap{max-width:720px;margin:0 auto;padding:28px 20px 60px}
   h1{font-size:24px;font-weight:600;letter-spacing:-.01em;margin:0 0 6px}
   .lead{color:var(--muted);margin:0 0 24px;font-size:15px}
-  .offer{border:1px solid var(--line);border-radius:var(--r);padding:20px;margin-bottom:16px}
-  .top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px}
-  .offer h2{font-size:18px;font-weight:600;margin:0}
-  .offer .cat{color:var(--muted);font-size:13px;margin-top:2px}
-  .badge{flex:none;background:var(--blue);color:#fff;font-weight:600;font-size:15px;padding:6px 12px;border-radius:var(--r);white-space:nowrap}
-  .offer p{margin:10px 0 0;font-size:15px}
+  .search{width:100%;height:44px;font:inherit;font-size:15px;padding:0 14px;border:1px solid var(--line);border-radius:var(--r);margin-bottom:16px;color:var(--ink)}
+  .search:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,94,184,.12)}
+  .offer{border:1px solid var(--line);border-radius:var(--r);margin-bottom:12px;overflow:hidden}
+  .top{display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;user-select:none;background:#fff}
+  .top:hover{background:var(--soft)}
+  .logo{flex:none;width:48px;height:48px;border-radius:var(--r);border:1px solid var(--line);background:#fff;object-fit:contain;padding:4px}
+  .logo.ph{display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:600;font-size:16px}
+  .ttl{flex:1;min-width:0}
+  .offer h2{font-size:17px;font-weight:600;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .offer .cat{color:var(--muted);font-size:13px;margin-top:1px}
+  .badge{flex:none;background:var(--blue);color:#fff;font-weight:600;font-size:14px;padding:5px 10px;border-radius:var(--r);white-space:nowrap}
+  .chev{flex:none;width:18px;height:18px;color:var(--muted);transition:transform .15s}
+  .offer.open .chev{transform:rotate(180deg)}
+  .body{display:none;padding:0 16px 16px;border-top:1px solid var(--line)}
+  .offer.open .body{display:block}
+  .offer p{margin:12px 0 0;font-size:15px}
   .offer ul{margin:8px 0 0;padding-inline-start:20px;font-size:15px}
   .offer li{margin:2px 0}
-  .how{margin-top:14px;padding:12px 14px;background:var(--soft);border-radius:var(--r);font-size:14px}
-  .how b{font-weight:600}
   .doc{display:inline-block;margin-top:12px;color:var(--blue);font-weight:500;text-decoration:none;font-size:14px}
   .doc:hover{text-decoration:underline}
   .foot{color:var(--muted);font-size:13px;margin-top:28px;text-align:center}
+  .empty{color:var(--muted);text-align:center;padding:24px 0}
 </style>
 </head>
 <body>
@@ -40,29 +49,33 @@
 <div class="wrap">
   <h1>Employee discounts</h1>
   <p class="lead">Exclusive offers for Abed Tahan employees. Show your Abed Tahan Digital ID unless stated otherwise.</p>
+  <input class="search" id="search" type="search" placeholder="Search by company or category…">
   <div id="list"></div>
+  <p class="foot">Offers are provided by partner companies and may change without notice.</p>
 </div>
 
 <script>
-// Add a new partner by adding an object here. Fields: name, category, discount, details (text), items (list), branches (list), how (text), doc (link, optional)
+// Add a new partner by adding an object here.
+// Fields: logo (image path, e.g. "/logos/tires-and-more.png" – leave "" for a placeholder), name, category, discount, details, items (list), branches (list), doc (PDF link, optional)
 const OFFERS = [
   {
+    logo: "",
     name: "Tires and More",
     category: "Tires, auto services",
     discount: "25% off",
     details: "25% discount on a wide range of products and services, available at all Tires and More branches.",
-    how: "Present your Abed Tahan Digital ID at any branch.",
     doc: "/employee%20offer%2025%25.pdf"
   },
   {
+    logo: "",
     name: "Spüntino Restaurant",
     category: "Restaurant",
     discount: "10% off",
     details: "10% discount on dine-in only, at the following branches:",
     branches: ["Verdun", "Khaldeh", "Saida"],
-    how: "Present your Abed Tahan Digital ID when dining in."
   },
   {
+    logo: "",
     name: "Mazen Pharmacy",
     category: "Pharmacy",
     discount: "Up to 25% off",
@@ -73,23 +86,37 @@ const OFFERS = [
       "Dermo-cosmetics: 20% to 25%",
       "Vitamins: 10%"
     ],
-    how: "Give your mobile number at the counter. No Digital ID needed."
+    note: "Discount is applied by giving your mobile number."
   }
 ];
 
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const list = (arr) => arr && arr.length ? `<ul>${arr.map(i => `<li>${esc(i)}</li>`).join("")}</ul>` : "";
-document.getElementById("list").innerHTML = OFFERS.map(o => `
-  <section class="offer">
-    <div class="top">
-      <div><h2>${esc(o.name)}</h2><div class="cat">${esc(o.category || "")}</div></div>
-      <div class="badge">${esc(o.discount)}</div>
-    </div>
-    <p>${esc(o.details || "")}</p>
-    ${list(o.items)}${list(o.branches)}
-    <div class="how"><b>How to redeem:</b> ${esc(o.how)}</div>
-    ${o.doc ? `<a class="doc" href="${esc(o.doc)}" download>Download details (PDF)</a>` : ""}
-  </section>`).join("");
+const CHEV = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+const initials = n => n.split(/\s+/).map(w => w[0]).filter(Boolean).slice(0,2).join("").toUpperCase();
+const listEl = document.getElementById("list"), searchEl = document.getElementById("search");
+let openIdx = -1;
+function render(){
+  const q = searchEl.value.trim().toLowerCase();
+  const rows = OFFERS.map((o, i) => ({o, i})).filter(({o}) => !q || [o.name, o.category, o.discount, o.details, ...(o.items||[]), ...(o.branches||[])].join(" ").toLowerCase().includes(q));
+  listEl.innerHTML = rows.map(({o, i}) => `
+    <section class="offer${openIdx===i?" open":""}" data-i="${i}">
+      <div class="top">
+        ${o.logo ? `<img class="logo" src="${esc(o.logo)}" alt="">` : `<div class="logo ph">${esc(initials(o.name))}</div>`}
+        <div class="ttl"><h2>${esc(o.name)}</h2><div class="cat">${esc(o.category || "")}</div></div>
+        <div class="badge">${esc(o.discount)}</div>${CHEV}
+      </div>
+      <div class="body">
+        <p>${esc(o.details || "")}</p>
+        ${list(o.items)}${list(o.branches)}
+        ${o.note ? `<p>${esc(o.note)}</p>` : ""}
+        ${o.doc ? `<a class="doc" href="${esc(o.doc)}" download>Download details (PDF)</a>` : ""}
+      </div>
+    </section>`).join("") || `<p class="empty">No offers match your search.</p>`;
+  listEl.querySelectorAll(".top").forEach(t => t.addEventListener("click", () => { const i = +t.parentElement.dataset.i; openIdx = openIdx === i ? -1 : i; render(); }));
+}
+searchEl.addEventListener("input", render);
+render();
 </script>
 </body>
 </html>
